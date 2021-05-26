@@ -1,11 +1,12 @@
 # Fardan's ~/.bashrc
-# Last updated 2016.12.30
-
 # Keep this as portable as possible so I don't have to have a different bashrc
 # file for every machine I use.
 
 # If not running interactively, don't do anything.
-[ -z "$PS1" ] && return
+case $- in
+  *i*) ;;
+  *) return ;;
+esac
 
 #### MISC DEFS ####
 
@@ -41,6 +42,13 @@ pwd_short () { [ "${PWD}" = "${HOME}" ] && echo '~' || basename "${PWD}"; }
 # Don't put duplicate lines in the history. See bash(1) for more options.
 export HISTCONTROL=ignoredups
 
+# For setting history length see HISTSIZE and HISTFILESIZE in bash(1).
+export HISTSIZE=1000
+export HISTFILESIZE=2000
+
+# Append to the history file, don't overwrite it.
+shopt -s histappend
+
 # Prevent Ctrl+D from quitting the shell.
 set -o ignoreeof
 
@@ -69,7 +77,7 @@ if [ "`echo \"${HOSTNAME}\" | sed 's/.*\\.rlogin\|.*\\.cslab\$/vtcslab/'`" = "vt
 fi
 
 # Enable color support for ls.
-if [ "$TERM" != "dumb" ] && (which dircolors >/dev/null 2>&1); then
+if [ "$TERM" != "dumb" ] && [ -x /usr/bin/dircolors ]; then
     # If we're going to use colors, make sure we always use xterm colors.
     temp_term=$TERM
     export TERM='xterm'
@@ -161,5 +169,12 @@ export PATH
 # this if it's already enabled in /etc/bash.bashrc, and /etc/profile
 # sources /etc/bash.bashrc).
 # !!! MIGHT PREMATURELY EXIT, SO PUT IT AT THE END OF YOUR ~/.BASHRC !!!
-[ -f ~/.bash_completion ] && . ~/.bash_completion
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+  [ -f ~/.bash_completion ] && . ~/.bash_completion
+fi
 #[ -f /etc/bash_completion ] && . /etc/bash_completion
