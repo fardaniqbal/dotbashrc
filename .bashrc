@@ -1,12 +1,25 @@
 # Fardan's ~/.bashrc
 # Keep this as portable as possible so I don't have to have a different bashrc
 # file for every machine I use.
+profile_last=${EPOCHREALTIME/./}
 
 # If not running interactively, don't do anything.
 case $- in
   *i*) ;;
   *) return ;;
 esac
+
+# For profiling the bottlenecks of this script.
+profile_time ()
+{\
+  local now=${EPOCHREALTIME/./}
+  [ -z "$profile_last" ] && profile_last=$now && return
+
+  printf -- '%5d ms %s\n' $((($now - $profile_last) / 1000)) "$1"
+  profile_last=$now
+}
+#profile_time
+profile_time "defined profile_time()"
 
 #### MISC DEFS ####
 
@@ -123,6 +136,7 @@ xterm*|rxvt*)
     ;;
 esac
 
+profile_time "begin path munge"
 # Add ~/bin and ~/local/bin to PATH if they exist.
 for i in "${HOME}/bin" "${HOME}/local/bin"; do
     [ -d "$i" ] && path_munge "$i"
@@ -143,13 +157,17 @@ for i in /usr/local/sbin /sbin /usr/sbin; do
     [ -d "$i" ] && path_munge "$i" after
 done
 
+profile_time "end path munge"
+
 # If we want EDITOR, SVN_EDITOR, etc to be emacs, make sure we use
-# terminal-mode emacs.
-if (emacs --help | grep -E '[[:space:]]-nw[,[:space:]]') > /dev/null 2>&1; then
-  emacs_nw_flag='-nw'
-else
-  emacs_nw_flag=''
-fi
+# terminal -mode emacs.  !!! Significantly slows down bash startup !!!
+#if (emacs --help | grep -E '[[:space:]]-nw[,[:space:]]') > /dev/null 2>&1; then
+#  emacs_nw_flag='-nw'
+#else
+#  emacs_nw_flag=''
+#fi
+
+profile_time "end emacs -nw setup"
 
 export EDITOR="emacs $emacs_nw_flag"
 export SVN_EDITOR="emacs $emacs_nw_flag"
@@ -157,13 +175,17 @@ export CVSEDITOR="emacs $emacs_nw_flag"
 export CVS_RSH
 export PATH
 
-#unset -f path_munge
+profile_time "end EDITOR setup"
 
 # Make sure ~/.inputrc gets processed.
 [ -f "$HOME/.inputrc" ] && export INPUTRC="$HOME/.inputrc"
 
+profile_time "end INPUTRC setup"
+
 # Define your own aliases here.
 [ -f ~/.bash_aliases ] && . ~/.bash_aliases
+
+profile_time "end .bash_aliases parsing"
 
 # Enable programmable completion features (you don't need to enable
 # this if it's already enabled in /etc/bash.bashrc, and /etc/profile
@@ -178,3 +200,4 @@ if ! shopt -oq posix; then
   [ -f ~/.bash_completion ] && . ~/.bash_completion
 fi
 #[ -f /etc/bash_completion ] && . /etc/bash_completion
+profile_time "end bash completion parsing"
