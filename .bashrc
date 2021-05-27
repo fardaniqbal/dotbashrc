@@ -159,24 +159,6 @@ done
 
 profile_time "end path munge"
 
-# If we want EDITOR, SVN_EDITOR, etc to be emacs, make sure we use
-# terminal -mode emacs.  !!! Significantly slows down bash startup !!!
-#if (emacs --help | grep -E '[[:space:]]-nw[,[:space:]]') > /dev/null 2>&1; then
-#  emacs_nw_flag='-nw'
-#else
-#  emacs_nw_flag=''
-#fi
-
-profile_time "end emacs -nw setup"
-
-export EDITOR="emacs $emacs_nw_flag"
-export SVN_EDITOR="emacs $emacs_nw_flag"
-export CVSEDITOR="emacs $emacs_nw_flag"
-export CVS_RSH
-export PATH
-
-profile_time "end EDITOR setup"
-
 # Make sure ~/.inputrc gets processed.
 [ -f "$HOME/.inputrc" ] && export INPUTRC="$HOME/.inputrc"
 
@@ -186,6 +168,21 @@ profile_time "end INPUTRC setup"
 [ -f ~/.bash_aliases ] && . ~/.bash_aliases
 
 profile_time "end .bash_aliases parsing"
+
+# Set up EDITOR and related variables.
+if ! alias emacs >/dev/null 2>&1; then
+  emacs_cmd=emacs
+else
+  emacs_cmd=$(alias emacs)
+  emacs_cmd=${emacs_cmd#alias }
+fi
+export EDITOR="$emacs_cmd"
+export SVN_EDITOR="$emacs_cmd"
+export CVSEDITOR="$emacs_cmd"
+export CVS_RSH
+export PATH
+
+profile_time "end EDITOR setup"
 
 # Enable programmable completion features (you don't need to enable
 # this if it's already enabled in /etc/bash.bashrc, and /etc/profile
