@@ -149,7 +149,8 @@ if ! alias emacs >/dev/null 2>&1; then
   emacs_cmd=emacs
 else
   emacs_cmd=$(alias emacs)
-  emacs_cmd=${emacs_cmd#alias }
+  emacs_cmd=${emacs_cmd#*\'}
+  emacs_cmd=${emacs_cmd%\'}
 fi
 export EDITOR="$emacs_cmd"
 export SVN_EDITOR="$emacs_cmd"
