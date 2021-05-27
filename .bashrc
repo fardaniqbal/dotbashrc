@@ -171,3 +171,4 @@ if ! shopt -oq posix; then
   [ -f ~/.bash_completion ] && . ~/.bash_completion
 fi
 #[ -f /etc/bash_completion ] && . /etc/bash_completion
+true # make exit return 0 if invoked immediately after startup (for debugging)
