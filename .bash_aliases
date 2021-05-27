@@ -1,10 +1,8 @@
 # -*- shell-script -*-
 # Fardan's ~/.bash_aliases
-# Last updated 2016.12.15
 # This file should should be sourced by ~/.bashrc or ~/.bash_profile.
 
 alias l='ls'
-alias sl='ls'
 alias la='l -A'
 alias ll='l -lh'
 alias dir='ll'
@@ -57,9 +55,7 @@ alias view='emacs -view'
 profile_time "- end basic aliases"
 
 # Inhibit octave startup message
-if /usr/bin/which octave > /dev/null 2>&1; then
-  alias octave='octave -q'
-fi
+alias octave='octave -q'
 
 profile_time "- end octave alias"
 

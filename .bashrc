@@ -2,6 +2,7 @@
 # Keep this as portable as possible so I don't have to have a different bashrc
 # file for every machine I use.
 profile_last=${EPOCHREALTIME/./}
+profile_time_enabled=true
 
 # If not running interactively, don't do anything.
 case $- in
@@ -11,14 +12,14 @@ esac
 
 # For profiling the bottlenecks of this script.
 profile_time ()
-{\
+{
+  $profile_time_enabled || return
   local now=${EPOCHREALTIME/./}
   [ -z "$profile_last" ] && profile_last=$now && return
 
   printf -- '%5d ms %s\n' $((($now - $profile_last) / 1000)) "$1"
   profile_last=$now
 }
-#profile_time
 profile_time "defined profile_time()"
 
 #### MISC DEFS ####
@@ -38,9 +39,10 @@ vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 # Adds the given path to $PATH, unless it's already in $PATH.
 path_munge ()
 {
-    if ! echo ":${PATH}:" | (/bin/grep -F ":${1}:" &>/dev/null); then
-        [ "$2" = "after" ] && PATH="${PATH}:${1}" || PATH="${1}:${PATH}"
-    fi
+  local expr_res=$(expr ":${PATH}:" : ".*:${1}:")
+  if [ $expr_res -eq 0 ]; then
+    [ "$2" = "after" ] && PATH="${PATH}:${1}" || PATH="${1}:${PATH}"
+  fi
 }
 
 # Like 'pwd', except it prints only the directory name, NOT the full path.
@@ -75,19 +77,15 @@ shopt -s checkwinsize
 # File permission bits to mask out by default when creating new files.
 umask 0022
 
+# People have way to much fun with this...
+mesg n
+
+profile_time "end bash options setup"
+
 # Make less more friendly for non-text input files, see lesspipe(1).
 [ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
 
-# Determine which host I'm logged on to, and set misc host-dependent things.
-if [ "`echo \"${HOSTNAME}\" | sed 's/.*\\.rlogin\|.*\\.cslab\$/vtcslab/'`" = "vtcslab" ]; then
-    # If we are logged into a VT CS lab machine.
-    umask 0066
-    alias gterm='/home/ugrads/f/fiqbal/bin/gterm'
-    alias which='alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'
-    CVS_RSH="/usr/bin/ssh"
-    path_munge "${HOME}/code/cs3204/bin" after
-    mesg n  # People have way too much fun with this at the VT CS labs...
-fi
+profile_time "end lesspipe"
 
 # Enable color support for ls.
 if [ "$TERM" != "dumb" ] && [ -x /usr/bin/dircolors ]; then
@@ -99,32 +97,29 @@ if [ "$TERM" != "dumb" ] && [ -x /usr/bin/dircolors ]; then
     unset -v temp_term
 fi
 
+profile_time "end dircolors"
+
 # Set PS1 to "[user@host: directory]$ ", but with color escape codes based on
 # the terminal type and whether or not we're root.
-[ "`id -ru`" -eq 0 ] && scheme=${vtredb} || scheme=${vtcya}
-[ "`id -ru`" -eq 0 ] && prompt='#'       || prompt='\$'
-PS1="$vtnor[$scheme\\u@\\h$vtnor: $vtblub\\W$vtnor]$scheme$prompt$vtnor "
-unset -v scheme prompt
+[ $UID -eq 0 ] && scheme=${vtredb} || scheme=${vtcya}
+[ $UID -eq 0 ] && prompt='#'       || prompt='\$'
+#PS1="$vtnor[$scheme\\u@\\h$vtnor: $vtblub\\W$vtnor]$scheme$prompt$vtnor "
 
-# Most terminals want escape codes in PS1 to be surrounded by \[ and \].
-if [ "${TERM}" != "dumb" ]; then
-    # ASCII character between '@' and '~', inclusive, terminate escape
-    # sequences.  That is, these characters: ][@A-Za-z^_`{|}~\
-    endc=']\[@A-Za-z^_`{|}~'
-    PS1=$(echo -n "$PS1" | sed 's,\\[0-9]\+\[[^'$endc']*['$endc'],\\[&\\],g')
-    unset -v endc
+profile_time "end color scheme/prompt setup"
 
-   # HACK: for some reason, using the above escape codes in PS1 messes up Mac
-   # OS X's terminal app, so hackishly check if we're on a Mac here.
-    if [ "$(uname -s)" = "Darwin" ]; then
-        txtblu_bold="$(tput setaf 12)"
-        txtcyn="$(tput setaf 6)"
-        txtrst="$(tput sgr0)"
-        unset -v txtblu_bold txtcyn txtrst # or just don't use colors at all...
-        PS1="$txtrst[$txtcyn\\u@\\h$txtrst: $txtblu_bold\\W$txtrst]$txtcyn\$$txtrst "
-        unset -v txtblu_bold txtcyn txtrst
-    fi
+# HACK: for some reason, escape codes in PS1 mess up Mac OS X's terminal app,
+# so hackishly check if we're on a Mac here.
+if [ "$OSTYPE" = "Darwin" ]; then
+  PS1="[\\u@\\h: \\W$]$prompt$ "
+else
+  # Most terminals want escape codes in PS1 to be surrounded by \[ and \].
+  [ "$TERM" != "dumb" ] && eb='\[' ee='\]'
+  PS1="$eb$vtnor$ee[$eb$scheme$ee\\u@\\h$eb$vtnor$ee"
+  PS1="$PS1: $eb$vtblub$ee\\W$eb$vtnor$ee]$eb$scheme$ee$prompt$eb$vtnor$ee "
 fi
+unset -v scheme prompt eb ee
+
+profile_time "end PS1 setup"
 
 # If this is an xterm or rxvt set the window title.
 case "${TERM}" in
@@ -136,28 +131,35 @@ xterm*|rxvt*)
     ;;
 esac
 
-profile_time "begin path munge"
+profile_time "end PROMPT_COMMAND setup"
+
 # Add ~/bin and ~/local/bin to PATH if they exist.
 for i in "${HOME}/bin" "${HOME}/local/bin"; do
     [ -d "$i" ] && path_munge "$i"
 done
+
+#profile_time "end ~/bin ~/local/bin path munge"
 
 # Add directories under ~/local/*/bin if they exist.
 for i in $(echo ~/local/*/bin | tr ' ' '\n' | sort -r); do
     [ -d "$i" ] && path_munge "$i"
 done
 
+#profile_time "end ~/local/*/bin path munge"
+
 # Bin directories under /opt.
 for i in $(echo /opt/*/bin /opt/*/*/bin | tr ' ' '\n' | sort); do
     [ -d "$i" ] && path_munge "$i" after
 done
+
+#profile_time "end /opt/*/bin /opt/*/*/bin path munge"
 
 # Add directories for system administration tools.
 for i in /usr/local/sbin /sbin /usr/sbin; do
     [ -d "$i" ] && path_munge "$i" after
 done
 
-profile_time "end path munge"
+profile_time "end /usr/local/sbin /sbin /usr/sbin path munge"
 
 # Make sure ~/.inputrc gets processed.
 [ -f "$HOME/.inputrc" ] && export INPUTRC="$HOME/.inputrc"
