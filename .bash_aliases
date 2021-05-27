@@ -15,8 +15,6 @@ elif ls -G ~/.bashrc > /dev/null 2>&1; then # bsd, mac os x
   ls_opts="$ls_opts -G"
 fi
 
-profile_time "- end ls color options"
-
 # Make ls group directories first.
 if ls --group-directories-first ~/.bashrc > /dev/null 2>&1; then
   # Directory grouping supported "natively".
@@ -27,12 +25,9 @@ elif [ -x ~/local/bin/lx ]; then
   alias l='lx'
 fi
 
-profile_time "- end ls directory grouping options"
-
 # Trim whitespace from $ls_opts.
 while [ "${ls_opts# }" != "$ls_opts" ]; do ls_opts=${ls_opts# }; done
 while [ "${ls_opts% }" != "$ls_opts" ]; do ls_opts=${ls_opts% }; done
-profile_time "- end \$ls_opts cleanup"
 alias ls="ls $ls_opts"
 unset -v ls_opts
 
@@ -52,25 +47,16 @@ alias gsh='groovysh --color=true -q'
 alias vi='vim'
 alias view='emacs -view'
 
-profile_time "- end basic aliases"
-
 # Inhibit octave startup message
 alias octave='octave -q'
-
-profile_time "- end octave alias"
 
 # If emacs has been set up to use a GUI window, make an alias that forces it to
 # run inside the terminal.
 if (emacs --help | grep -E '[[:space:]]-nw[,[:space:]]') > /dev/null 2>&1; then
   alias emacs='emacs -nw'
 fi
-profile_time "- end emacs -nw alias"
 alias emacsclient='emacsclient -a "" -t'
 alias em='emacsclient'
 
-profile_time "- end emacsclient alias"
-
 #[ "$TERM" != "screen" ] && alias screen='screen -dRR'
 [ "$TERM" != "screen" ] && alias screen='screen -dR'
-
-profile_time "- end screen alias"

@@ -2,7 +2,6 @@
 # Keep this as portable as possible so I don't have to have a different bashrc
 # file for every machine I use.
 profile_last=${EPOCHREALTIME/./}
-profile_time_enabled=true
 
 # If not running interactively, don't do anything.
 case $- in
@@ -13,14 +12,12 @@ esac
 # For profiling the bottlenecks of this script.
 profile_time ()
 {
-  $profile_time_enabled || return
   local now=${EPOCHREALTIME/./}
   [ -z "$profile_last" ] && profile_last=$now && return
 
   printf -- '%5d ms %s\n' $((($now - $profile_last) / 1000)) "$1"
   profile_last=$now
 }
-profile_time "defined profile_time()"
 
 #### MISC DEFS ####
 
@@ -80,12 +77,8 @@ umask 0022
 # People have way to much fun with this...
 mesg n
 
-profile_time "end bash options setup"
-
 # Make less more friendly for non-text input files, see lesspipe(1).
 [ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
-
-profile_time "end lesspipe"
 
 # Enable color support for ls.
 if [ "$TERM" != "dumb" ] && [ -x /usr/bin/dircolors ]; then
@@ -97,15 +90,11 @@ if [ "$TERM" != "dumb" ] && [ -x /usr/bin/dircolors ]; then
     unset -v temp_term
 fi
 
-profile_time "end dircolors"
-
 # Set PS1 to "[user@host: directory]$ ", but with color escape codes based on
 # the terminal type and whether or not we're root.
 [ $UID -eq 0 ] && scheme=${vtredb} || scheme=${vtcya}
 [ $UID -eq 0 ] && prompt='#'       || prompt='\$'
 #PS1="$vtnor[$scheme\\u@\\h$vtnor: $vtblub\\W$vtnor]$scheme$prompt$vtnor "
-
-profile_time "end color scheme/prompt setup"
 
 # HACK: for some reason, escape codes in PS1 mess up Mac OS X's terminal app,
 # so hackishly check if we're on a Mac here.
@@ -119,8 +108,6 @@ else
 fi
 unset -v scheme prompt eb ee
 
-profile_time "end PS1 setup"
-
 # If this is an xterm or rxvt set the window title.
 case "${TERM}" in
 xterm*|rxvt*)
@@ -131,45 +118,31 @@ xterm*|rxvt*)
     ;;
 esac
 
-profile_time "end PROMPT_COMMAND setup"
-
 # Add ~/bin and ~/local/bin to PATH if they exist.
 for i in "${HOME}/bin" "${HOME}/local/bin"; do
     [ -d "$i" ] && path_munge "$i"
 done
-
-#profile_time "end ~/bin ~/local/bin path munge"
 
 # Add directories under ~/local/*/bin if they exist.
 for i in $(echo ~/local/*/bin | tr ' ' '\n' | sort -r); do
     [ -d "$i" ] && path_munge "$i"
 done
 
-#profile_time "end ~/local/*/bin path munge"
-
 # Bin directories under /opt.
 for i in $(echo /opt/*/bin /opt/*/*/bin | tr ' ' '\n' | sort); do
     [ -d "$i" ] && path_munge "$i" after
 done
-
-#profile_time "end /opt/*/bin /opt/*/*/bin path munge"
 
 # Add directories for system administration tools.
 for i in /usr/local/sbin /sbin /usr/sbin; do
     [ -d "$i" ] && path_munge "$i" after
 done
 
-profile_time "end /usr/local/sbin /sbin /usr/sbin path munge"
-
 # Make sure ~/.inputrc gets processed.
 [ -f "$HOME/.inputrc" ] && export INPUTRC="$HOME/.inputrc"
 
-profile_time "end INPUTRC setup"
-
 # Define your own aliases here.
 [ -f ~/.bash_aliases ] && . ~/.bash_aliases
-
-profile_time "end .bash_aliases parsing"
 
 # Set up EDITOR and related variables.
 if ! alias emacs >/dev/null 2>&1; then
@@ -184,8 +157,6 @@ export CVSEDITOR="$emacs_cmd"
 export CVS_RSH
 export PATH
 
-profile_time "end EDITOR setup"
-
 # Enable programmable completion features (you don't need to enable
 # this if it's already enabled in /etc/bash.bashrc, and /etc/profile
 # sources /etc/bash.bashrc).
@@ -199,4 +170,3 @@ if ! shopt -oq posix; then
   [ -f ~/.bash_completion ] && . ~/.bash_completion
 fi
 #[ -f /etc/bash_completion ] && . /etc/bash_completion
-profile_time "end bash completion parsing"
