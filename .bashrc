@@ -99,7 +99,7 @@ fi
 # HACK: for some reason, escape codes in PS1 mess up Mac OS X's terminal app,
 # so hackishly check if we're on a Mac here.
 if [ "$OSTYPE" = "Darwin" ]; then
-  PS1="[\\u@\\h: \\W$]$prompt$ "
+  PS1="[\\u@\\h: \\W]$prompt "
 else
   # Most terminals want escape codes in PS1 to be surrounded by \[ and \].
   [ "$TERM" != "dumb" ] && eb='\[' ee='\]'
