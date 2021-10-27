@@ -9,8 +9,9 @@ symlink files in your home directory to the corresponding files here:
 mkdir ~/dotfiles
 cd ~/dotfiles
 git clone git://github.com/fardaniqbal/dotbashrc.git
-ln -s ~/dotfiles/dotbashrc/.bashrc ~/.bashrc
-ln -s ~/dotfiles/dotbashrc/.bash_aliases ~/.bash_aliases
+cd
+ln -s dotfiles/dotbashrc/.bashrc .bashrc
+ln -s dotfiles/dotbashrc/.bash_aliases .bash_aliases
 ...etc...
 ```
 
@@ -18,5 +19,5 @@ Symlink `~/.dircolors` to _one_ of the dircolors files in this repo.
 For example:
 
 ```bash
-ln -s ~/dotfiles/dotbashrc/dircolors.ansi-universal ~/.dircolors
+ln -s dotfiles/dotbashrc/dircolors.ansi-universal .dircolors
 ```
