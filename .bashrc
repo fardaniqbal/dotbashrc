@@ -79,12 +79,16 @@ mesg n
 
 # Enable color support for ls.
 if [ "$TERM" != "dumb" ] && [ -x /usr/bin/dircolors ]; then
+  if [ -f "$HOME/.dircolors" ]; then
+    eval "$(dircolors -b "$HOME/.dircolors")"
+  else
     # If we're going to use colors, make sure we always use xterm colors.
     temp_term=$TERM
     export TERM='xterm'
     eval "`dircolors -b`"
     export TERM=$temp_term
     unset -v temp_term
+  fi
 fi
 
 # Set PS1 to "[user@host: directory]$ ", but with color escape codes based on
