@@ -1,10 +1,8 @@
 # -*- shell-script -*-
 # Fardan's ~/.bash_aliases
 # This file should should be sourced by ~/.bashrc or ~/.bash_profile.
-
-alias l='ls'
-alias la='l -A'
-alias ll='l -lh'
+alias la='ls -A'
+alias ll='ls -lh'
 alias dir='ll'
 ls_opts=''
 
@@ -22,7 +20,6 @@ if ls --group-directories-first ~/.bashrc > /dev/null 2>&1; then
 elif [ -x ~/local/bin/lx ]; then
   # Use the lx wrapper for directory grouping.
   alias lx='lx --color=auto'
-  alias l='lx'
 fi
 
 # Trim whitespace from $ls_opts.
@@ -43,15 +40,11 @@ alias fgrep='fgrep --color=auto'
 alias rgrep='rgrep --color=auto'
 
 alias gsh='groovysh --color=true -q'
-
 alias vi='vim'
-alias view='emacs -view'
+alias octave='octave -q'  # inhibit octave startup message
 
-# Inhibit octave startup message
-alias octave='octave -q'
-
-# If emacs has been set up to use a GUI window, make an alias that forces it to
-# run inside the terminal.
+# If emacs has been set up to use a GUI window, make an alias that forces
+# it to run inside the terminal.
 if (emacs --help | grep -E '[[:space:]]-nw[,[:space:]]') > /dev/null 2>&1; then
   alias emacs='emacs -nw'
 fi
