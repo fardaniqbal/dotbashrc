@@ -127,16 +127,15 @@ done
 [ -f ~/.bash_aliases ] && . ~/.bash_aliases
 
 # Set up EDITOR and related variables.
-if ! alias emacs >/dev/null 2>&1; then
-  emacs_cmd=emacs
-else
-  emacs_cmd=$(alias emacs)
-  emacs_cmd=${emacs_cmd#*\'}
-  emacs_cmd=${emacs_cmd%\'}
+EDITOR=vim
+if alias "$EDITOR" >/dev/null 2>&1; then
+  EDITOR=$(alias "$EDITOR")
+  EDITOR=${EDITOR#*\'}
+  EDITOR=${EDITOR%\'}
 fi
-export EDITOR="$emacs_cmd"
-export SVN_EDITOR="$emacs_cmd"
-export CVSEDITOR="$emacs_cmd"
+export EDITOR
+export SVN_EDITOR="$EDITOR"
+export CVSEDITOR="$EDITOR"
 export CVS_RSH
 export PATH
 
