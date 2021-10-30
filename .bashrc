@@ -1,6 +1,6 @@
 # Fardan's ~/.bashrc
-# Keep this as portable as possible so I don't have to have a different bashrc
-# file for every machine I use.
+# Keep this as portable as possible so I don't have to have a different
+# bashrc file for every machine I use.
 profile_last=${EPOCHREALTIME/./}
 
 # If not running interactively, don't do anything.
@@ -39,40 +39,23 @@ path_munge ()
   fi
 }
 
-# Like 'pwd', except it prints only the directory name, NOT the full path.
-# Also, if current directory is the home directory, then it prints "~" instead
-# of the home directory's actual name.
-#
+# Like 'pwd', but print only the directory's basename, NOT the full path.
+# If current directory is home directory, then just print "~".
 # !!! THIS FUNCTION IS USED BY ${PROMPT_COMMAND} !!!
 pwd_short () { [ "${PWD}" = "${HOME}" ] && echo '~' || basename "${PWD}"; }
 
 #### BEGIN BASHRC PROPER ####
 
-# Don't put duplicate lines in the history. See bash(1) for more options.
-export HISTCONTROL=ignoredups
-
-# For setting history length see HISTSIZE and HISTFILESIZE in bash(1).
+export HISTCONTROL=ignoredups # don't put duplicate lines in history
 export HISTSIZE=1000
 export HISTFILESIZE=2000
 
-# Append to the history file, don't overwrite it.
-shopt -s histappend
-
-# Prevent Ctrl+D from quitting the shell.
-set -o ignoreeof
-
-# Fix typos
-shopt -s cdspell
-
-# Check the window size after each command and, if necessary, update the
-# values of LINES and COLUMNS.
-shopt -s checkwinsize
-
-# File permission bits to mask out by default when creating new files.
-umask 0022
-
-# People have way to much fun with this...
-mesg n
+shopt -s histappend   # append to history file, don't overwrite it
+set -o ignoreeof      # prevent Ctrl+D from quitting the shell
+shopt -s cdspell      # fix typos
+shopt -s checkwinsize # update $LINES and $COLUMNS on window resize
+umask 0022            # mask out these permission bits when creating files
+mesg n                # people have way too much fun with this...
 
 # Make less more friendly for non-text input files, see lesspipe(1).
 [ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
@@ -82,23 +65,22 @@ if [ "$TERM" != "dumb" ] && (which dircolors >/dev/null 2>&1); then
   if [ -f "$HOME/.dircolors" ]; then
     eval "$(dircolors -b "$HOME/.dircolors")"
   else
-    # If we're going to use colors, make sure we always use xterm colors.
     temp_term=$TERM
-    export TERM='xterm'
+    export TERM='xterm' # use xterm colors if no custom dircolors db
     eval "`dircolors -b`"
     export TERM=$temp_term
     unset -v temp_term
   fi
 fi
 
-# Set PS1 to "[user@host: directory]$ ", but with color escape codes based on
-# the terminal type and whether or not we're root.
+# Set PS1 to "[user@host: directory]$ ", but with color escape codes based
+# on the terminal type and whether or not we're root.
 [ $UID -eq 0 ] && scheme=${vtredb} || scheme=${vtcya}
 [ $UID -eq 0 ] && prompt='#'       || prompt='\$'
 #PS1="$vtnor[$scheme\\u@\\h$vtnor: $vtblub\\W$vtnor]$scheme$prompt$vtnor "
 
-# HACK: for some reason, escape codes in PS1 mess up Mac OS X's terminal app,
-# so hackishly check if we're on a Mac here.
+# HACK: for some reason, escape codes in PS1 mess up Mac OS X's terminal
+# app, so hackishly check if we're on a Mac here.
 if [ "$OSTYPE" = "Darwin" ]; then
   PS1="[\\u@\\h: \\W]$prompt "
 else
@@ -111,8 +93,7 @@ unset -v scheme prompt eb ee
 
 # If this is an xterm or rxvt set the window title.
 case "${TERM}" in
-xterm*|rxvt*)
-    # Set the title to show only the working directory (NOT the full path).
+xterm*|rxvt*) # set window title to show current dir's basename
     PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: `pwd_short`\007"'
     ;;
 *)
@@ -172,4 +153,4 @@ if ! shopt -oq posix; then
   [ -f ~/.bash_completion ] && . ~/.bash_completion
 fi
 #[ -f /etc/bash_completion ] && . /etc/bash_completion
-true # make exit return 0 if invoked immediately after startup (for debugging)
+true # make exit code be 0 (for debugging this script)
