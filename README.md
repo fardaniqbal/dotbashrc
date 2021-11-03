@@ -19,7 +19,7 @@ Symlink `~/.dircolors` to _one_ of the dircolors files in this repo.
 For example:
 
 ```bash
-ln -s dotfiles/dotbashrc/dircolors.ansi-universal .dircolors
+ln -s dotfiles/dotbashrc/dircolors/solarized.ansi-universal .dircolors
 ```
 
 # Copying
