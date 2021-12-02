@@ -136,6 +136,16 @@ export CVSEDITOR="$EDITOR"
 export CVS_RSH
 export PATH
 
+# Colorize man pages.
+export LESS_TERMCAP_mb=$'\e[0;31m'      # begin bold
+export LESS_TERMCAP_md=$'\e[0;32m'      # begin blink
+export LESS_TERMCAP_so=$'\e[0;42;30m'   # begin standout colors
+export LESS_TERMCAP_us=$'\e[0;36m'      # begin underline
+export LESS_TERMCAP_me=$'\e[0m'         # end bold/blink
+export LESS_TERMCAP_se=$'\e[0m'         # end standout colors
+export LESS_TERMCAP_ue=$'\e[0m'         # end underline
+export GROFF_NO_SGR=1   # for compatibility with some terminal emulators
+
 # Host-specific settings.
 [ -f ~/.bashrc.local ] && . ~/.bashrc.local
 
