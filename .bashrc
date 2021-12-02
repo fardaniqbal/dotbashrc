@@ -7,11 +7,9 @@ profile_last=${EPOCHREALTIME/./}
 [[ $- == *i* ]] || return
 
 # For profiling the bottlenecks of this script.
-profile_time ()
-{
+profile_time() {
   local now=${EPOCHREALTIME/./}
   [ -z "$profile_last" ] && profile_last=$now && return
-
   printf -- '%5d ms %s\n' $((($now - $profile_last) / 1000)) "$1"
   profile_last=$now
 }
@@ -31,8 +29,7 @@ vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 #### MISC UTILITY FUNCTIONS ####
 
 # Adds the given path to $PATH, unless it's already in $PATH.
-path_munge ()
-{
+path_munge() {
   local expr_res=$(expr ":${PATH}:" : ".*:${1}:")
   if [ $expr_res -eq 0 ]; then
     [ "$2" = "after" ] && PATH="${PATH}:${1}" || PATH="${1}:${PATH}"
@@ -42,7 +39,7 @@ path_munge ()
 # Like 'pwd', but print only the directory's basename, NOT the full path.
 # If current directory is home directory, then just print "~".
 # !!! THIS FUNCTION IS USED BY ${PROMPT_COMMAND} !!!
-pwd_short () { [ "${PWD}" = "${HOME}" ] && echo '~' || basename "${PWD}"; }
+pwd_short() { [ "${PWD}" = "${HOME}" ] && echo '~' || basename "${PWD}"; }
 
 #### BEGIN BASHRC PROPER ####
 
@@ -94,30 +91,30 @@ unset -v scheme prompt eb ee
 # If this is an xterm or rxvt set the window title.
 case "${TERM}" in
 xterm*|rxvt*) # set window title to show current dir's basename
-    PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: `pwd_short`\007"'
-    ;;
+  PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: `pwd_short`\007"'
+  ;;
 *)
-    ;;
+  ;;
 esac
 
 # Add ~/bin and ~/local/bin to PATH if they exist.
 for i in "${HOME}/bin" "${HOME}/local/bin"; do
-    [ -d "$i" ] && path_munge "$i"
+  [ -d "$i" ] && path_munge "$i"
 done
 
 # Add directories under ~/local/*/bin if they exist.
 for i in $(echo ~/local/*/bin | tr ' ' '\n' | sort -r); do
-    [ -d "$i" ] && path_munge "$i"
+  [ -d "$i" ] && path_munge "$i"
 done
 
 # Bin directories under /opt.
 for i in $(echo /opt/*/bin /opt/*/*/bin | tr ' ' '\n' | sort); do
-    [ -d "$i" ] && path_munge "$i" after
+  [ -d "$i" ] && path_munge "$i" after
 done
 
 # Add directories for system administration tools.
 for i in /usr/local/sbin /sbin /usr/sbin; do
-    [ -d "$i" ] && path_munge "$i" after
+  [ -d "$i" ] && path_munge "$i" after
 done
 
 # Make sure ~/.inputrc gets processed.
