@@ -22,7 +22,17 @@ For example:
 ln -s dotfiles/dotbashrc/dircolors/solarized.ansi-universal .dircolors
 ```
 
-# Copying
+## See also
+
+* [`.inputrc`](inputrc) - controls how bash interprets user input (e.g.,
+  emacs-vs-vi key bindings, case-(in-)sensitive completion, etc).  Although
+  this file is obviously relevant to bash's UX, I keep it in a seperate
+  repo because it affects the UX of _all_ programs that use the `readline`
+  library, including but not limited to bash.
+
+[inputrc]: https://github.com/fardaniqbal/dotmisc/blob/master/.inputrc
+
+## Copying
 
 This repo may contain (or have submodules of) 3rd-party content.  The
 copyrights of said 3rd-party content belong to their respective authors,
