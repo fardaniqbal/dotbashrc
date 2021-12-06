@@ -17,8 +17,9 @@ ln -s dotfiles/dotbashrc/.bash_aliases .bash_aliases
 ...etc...
 ```
 
-Symlink `~/.dircolors` to _one_ of the dircolors files in this repo.
-For example:
+Optionally, if you're using GNU `ls` but you don't like the colors it uses
+by default, then you can symlink `~/.dircolors` to _one_ of the dircolors
+files in this repo.  For example:
 
 ```bash
 ln -s dotfiles/dotbashrc/dircolors/solarized.ansi-universal .dircolors
