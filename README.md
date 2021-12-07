@@ -27,7 +27,7 @@ ln -s dotfiles/dotbashrc/dircolors/solarized.ansi-universal .dircolors
 
 ## See also
 
-* My personal [`.inputrc`](inputrc): controls how bash interprets user
+* My personal [`.inputrc`][inputrc]: controls how bash interprets user
   input (e.g., emacs-vs-vi key bindings, case-(in-)sensitive completion,
   etc).  Although this file is obviously relevant to bash's UX, I keep it
   in a seperate repo because it affects the UX of _all_ programs that use
