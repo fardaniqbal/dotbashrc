@@ -8,12 +8,11 @@ Recursively clone this repo into something like `~/dotfiles/dotbashrc`, and
 symlink the dotfiles to the corresponding files in your home directory:
 
 ```bash
-mkdir ~/dotfiles
+mkdir -p ~/dotfiles
 cd ~/dotfiles
 git clone --recurse-submodules git://github.com/fardaniqbal/dotbashrc.git
-cd
-ln -s dotfiles/dotbashrc/.bashrc .bashrc
-ln -s dotfiles/dotbashrc/.bash_aliases .bash_aliases
+ln -s dotfiles/dotbashrc/.bashrc ~/.bashrc
+ln -s dotfiles/dotbashrc/.bash_aliases ~/.bash_aliases
 ...etc...
 ```
 
@@ -22,7 +21,7 @@ by default, then you can symlink _one_ of the files in this repo's
 `dircolors` directory to `~/.dircolors`.  For example:
 
 ```bash
-ln -s dotfiles/dotbashrc/dircolors/solarized.ansi-universal .dircolors
+ln -s dotfiles/dotbashrc/dircolors/solarized.ansi-universal ~/.dircolors
 ```
 
 ## See also
