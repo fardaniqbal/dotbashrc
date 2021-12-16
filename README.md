@@ -4,8 +4,8 @@ example.
 
 ## Installation
 
-Recursively clone this repo into something like `~/dotfiles/dotbashrc` and
-symlink files in your home directory to the corresponding files here:
+Recursively clone this repo into something like `~/dotfiles/dotbashrc`, and
+symlink the dotfiles to the corresponding files in your home directory:
 
 ```bash
 mkdir ~/dotfiles
