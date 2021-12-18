@@ -4,25 +4,24 @@ example.
 
 ## Installation
 
-Recursively clone this repo into something like `~/dotfiles/dotbashrc` and
-symlink files in your home directory to the corresponding files here:
+Recursively clone this repo into something like `~/dotfiles/dotbashrc`, and
+symlink the dotfiles to the corresponding files in your home directory:
 
 ```bash
-mkdir ~/dotfiles
+mkdir -p ~/dotfiles
 cd ~/dotfiles
 git clone --recurse-submodules git://github.com/fardaniqbal/dotbashrc.git
-cd
-ln -s dotfiles/dotbashrc/.bashrc .bashrc
-ln -s dotfiles/dotbashrc/.bash_aliases .bash_aliases
+ln -s dotfiles/dotbashrc/.bashrc ~/.bashrc
+ln -s dotfiles/dotbashrc/.bash_aliases ~/.bash_aliases
 ...etc...
 ```
 
 Optionally, if you're using GNU `ls` but you don't like the colors it uses
-by default, then you can symlink `~/.dircolors` to _one_ of the dircolors
-files in this repo.  For example:
+by default, then you can symlink _one_ of the files in this repo's
+`dircolors` directory to `~/.dircolors`.  For example:
 
 ```bash
-ln -s dotfiles/dotbashrc/dircolors/solarized.ansi-universal .dircolors
+ln -s dotfiles/dotbashrc/dircolors/solarized.ansi-universal ~/.dircolors
 ```
 
 ## See also
