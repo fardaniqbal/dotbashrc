@@ -135,6 +135,7 @@ export SVN_EDITOR="$EDITOR"
 export CVSEDITOR="$EDITOR"
 export CVS_RSH
 export PATH
+export JAVA_TOOLS_OPTIONS="-Dlog4j2.formatMsgNoLookups=true" # log4j vuln.
 
 # Colorize man pages.
 export LESS_TERMCAP_mb=$'\e[0;31m'      # begin bold
