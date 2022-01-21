@@ -36,6 +36,24 @@ path_munge() {
   fi
 }
 
+# Output the bottom-level command to which the arg(s) are aliased.  E.g.,
+# if `ll` is aliased to `ls -lh` and `ls` is aliased to `ls -G`, then
+# `expand_alias ll -A` will output `ls -G -lh -A`.
+expand_alias() {
+  firstarg() { printf "%s" "$1"; }
+  restargs() { shift; printf "%s" "$*"; }
+  local cmd=$(firstarg $@) cmd_prev="" args=$(restargs $@)
+  while alias "$cmd" >/dev/null 2>&1 && [ "$cmd" != "$cmd_prev" ]; do
+    cmd_prev=$cmd
+    cmd=$(alias "$cmd")
+    cmd=${cmd#*\'}
+    cmd=${cmd%\'}
+    args="$(restargs $cmd) $args"
+    cmd=$(firstarg $cmd)
+  done
+  printf "%s\n" "$cmd $args" | sed 's/ *$//' # trim trailing spaces
+}
+
 # Like 'pwd', but print only the directory's basename, NOT the full path.
 # If current directory is home directory, then just print "~".
 # !!! THIS FUNCTION IS USED BY ${PROMPT_COMMAND} !!!
@@ -124,13 +142,7 @@ done
 [ -f ~/.bash_aliases ] && . ~/.bash_aliases
 
 # Set up EDITOR and related variables.
-EDITOR=vim
-if alias "$EDITOR" >/dev/null 2>&1; then
-  EDITOR=$(alias "$EDITOR")
-  EDITOR=${EDITOR#*\'}
-  EDITOR=${EDITOR%\'}
-fi
-export EDITOR
+export EDITOR=$(expand_alias vim)
 export SVN_EDITOR="$EDITOR"
 export CVSEDITOR="$EDITOR"
 export CVS_RSH
