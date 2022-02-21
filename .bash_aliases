@@ -42,6 +42,7 @@ alias rgrep='rgrep --color=auto'
 alias gsh='groovysh --color=true -q'
 alias vi='vim'
 alias octave='octave -q'  # inhibit octave startup message
+alias tree='tree -C'
 
 # If emacs has been set up to use a GUI window, make an alias that forces
 # it to run inside the terminal.
