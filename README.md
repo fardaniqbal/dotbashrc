@@ -10,7 +10,7 @@ symlink the dotfiles to the corresponding files in your home directory:
 ```bash
 mkdir -p ~/dotfiles
 cd ~/dotfiles
-git clone --recurse-submodules git://github.com/fardaniqbal/dotbashrc.git
+git clone --recurse-submodules git@github.com:fardaniqbal/dotbashrc.git
 ln -s dotfiles/dotbashrc/.bashrc ~/.bashrc
 ln -s dotfiles/dotbashrc/.bash_aliases ~/.bash_aliases
 ...etc...
