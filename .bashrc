@@ -92,11 +92,9 @@ fi
 # on the terminal type and whether or not we're root.
 [ $UID -eq 0 ] && scheme=${vtredb} || scheme=${vtcya}
 [ $UID -eq 0 ] && prompt='#'       || prompt='\$'
-#PS1="$vtnor[$scheme\\u@\\h$vtnor: $vtblub\\W$vtnor]$scheme$prompt$vtnor "
 
-# HACK: for some reason, escape codes in PS1 mess up Mac OS X's terminal
-# app, so hackishly check if we're on a Mac here.
 if [ "$OSTYPE" = "Darwin" ]; then
+  # Escape codes in PS1 mess up the terminal on older versions of Mac OS X.
   PS1="[\\u@\\h: \\W]$prompt "
 else
   # Most terminals want escape codes in PS1 to be surrounded by \[ and \].

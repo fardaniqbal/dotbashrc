@@ -8,6 +8,9 @@ ls_opts=''
 
 # Make ls output colored.
 if ls --color=auto ~/.bashrc > /dev/null 2>&1; then
+  # On Mac OS Monterey and later, ls accepts --color (in addition to -G),
+  # but --color=auto doesn't take effect unless COLORTERM is non-empty.
+  export COLORTERM=yes
   ls_opts="$ls_opts --color=auto"
 elif ls -G ~/.bashrc > /dev/null 2>&1; then # bsd, mac os x
   ls_opts="$ls_opts -G"
@@ -23,8 +26,8 @@ elif [ -x ~/local/bin/lx ]; then
 fi
 
 # Trim whitespace from $ls_opts.
-while [ "${ls_opts# }" != "$ls_opts" ]; do ls_opts=${ls_opts# }; done
-while [ "${ls_opts% }" != "$ls_opts" ]; do ls_opts=${ls_opts% }; done
+while [ x"${ls_opts# }" != x"$ls_opts" ]; do ls_opts=${ls_opts# }; done
+while [ x"${ls_opts% }" != x"$ls_opts" ]; do ls_opts=${ls_opts% }; done
 alias ls="ls $ls_opts"
 unset -v ls_opts
 
