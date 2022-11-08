@@ -10,7 +10,11 @@ ls_opts=''
 if ls --color=auto ~/.bashrc > /dev/null 2>&1; then
   # On Mac OS Monterey and later, ls accepts --color (in addition to -G),
   # but --color=auto doesn't take effect unless COLORTERM is non-empty.
-  [ -z "$COLORTERM" ] && export COLORTERM=yes
+  if [[ "$TERM" =~ (truecolor|24bit) ]]; then
+    export COLORTERM=${COLORTERM:-truecolor}
+  else
+    export COLORTERM=${COLORTERM:-yes}
+  fi
   ls_opts="$ls_opts --color=auto"
 elif ls -G ~/.bashrc > /dev/null 2>&1; then # bsd, mac os x
   ls_opts="$ls_opts -G"
