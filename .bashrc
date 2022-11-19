@@ -28,6 +28,37 @@ vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 
 #### MISC UTILITY FUNCTIONS ####
 
+# SSH ENV HACK: when we ssh into a remote host, there's no standard way to
+# pass arbitrary env vars to that host without root access to it.  However,
+# ssh _does_ pass the TERM env var to the host by default.  We can exploit
+# this to pass other env vars to the ssh host:
+# 1. On the client, encode env vars into TERM right before running the ssh
+#    client (URL-style, e.g. TERM="xterm?SSH_VAR_1=foo&SSH_VAR_2=bar".)
+# 2. On the host, decode the env vars out of TERM in the host's bashrc.
+decode_env_from_TERM() {
+  local bare_term=${TERM%%\?*}
+  local var_string=${TERM:$((${#bare_term} + 1))}
+  export TERM=$bare_term
+  IFS='&' read -r -a var_array <<< "$var_string"
+  for i in "${var_array[@]}"; do
+    #local var_name=${i%%=*}
+    #local var_value=${i/#$var_name=/}
+    export "$i" # TODO: percent decode
+  done
+}
+decode_env_from_TERM
+
+# Example usage: alias ssh='TERM=$(encode_env_into_TERM) ssh'.
+encode_env_into_TERM() {
+  local result=$TERM sep='?'
+  while read var; do
+    [[ "$var" == SSH_CLIENT_* ]] || continue
+    result="$result$sep$var" # TODO: percent encode
+    sep='&'
+  done <<< "$(/usr/bin/env)"
+  printf -- "%s\n" "$result"
+}
+
 # Adds the given path to $PATH, unless it's already in $PATH.
 path_munge() {
   local expr_res=$(expr ":${PATH}:" : ".*:${1}:")
