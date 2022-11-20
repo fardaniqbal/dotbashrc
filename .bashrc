@@ -70,17 +70,11 @@ encode_env_into_TERM() {
   printf -- "%s\n" "$result"
 }
 
-# Encode and export each given var into TERM.
-ssh_envhack_export_vars() {
-  for var in "$@"; do
-    ssh_var="SSH_CLIENT_$var"
-    [ -z "${!ssh_var}" ] && export "${ssh_var}=${!var}"
-  done
-  export TERM=$(encode_env_into_TERM)
-}
-
 ssh_envhack_wrapper() {
-  (ssh_envhack_export_vars COLORTERM OSTYPE TERM_PROGRAM
+  (export SSH_CLIENT_OSTYPE=${SSH_CLIENT_OSTYPE:-$OSTYPE}
+   export SSH_CLIENT_COLORTERM=${SSH_CLIENT_COLORTERM:-$COLORTERM}
+   export SSH_CLIENT_TERM_PROGRAM=${SSH_CLIENT_TERM_PROGRAM:-$TERM_PROGRAM}
+   export TERM=$(encode_env_into_TERM)
    exec ssh "$@")
 }
 alias ssh='ssh_envhack_wrapper'
