@@ -81,11 +81,20 @@ alias ssh='ssh_envhack_wrapper'
 #### MISC UTILITY FUNCTIONS ####
 
 # Adds the given path to $PATH, unless it's already in $PATH.
+path_pre_munge()  { [[ ":${PATH}:" == *":$1:"* ]] || PATH="$1:${PATH}"; }
+path_post_munge() { [[ ":${PATH}:" == *":$1:"* ]] || PATH="${PATH}:$1"; }
+
 path_munge() {
-  local expr_res=$(expr ":${PATH}:" : ".*:${1}:")
-  if [ $expr_res -eq 0 ]; then
-    [ "$2" = "after" ] && PATH="${PATH}:${1}" || PATH="${1}:${PATH}"
-  fi
+  local lines munge_func=path_pre_munge nosort=false sort_flag
+  while [[ "$1" == -* ]]; do
+    [ "$1" = "--after" ] && munge_func=path_post_munge
+    [ "$1" = "--nosort" ] && nosort=true
+    [ "$1" = "--revsort" ] && sort_flag=-r
+    shift
+  done
+  $nosort && lines=$(printf '%s\n' "$@")
+  $nosort || lines=$(printf '%s\n' "$@" | sort $sort_flag)
+  while read i; do [ -d "$i" ] && $munge_func "$i"; done <<< "$lines"
 }
 
 # Output the bottom-level command to which the arg(s) are aliased.  E.g.,
@@ -161,25 +170,10 @@ xterm*|rxvt*) # set window title to show current dir's basename
   ;;
 esac
 
-# Add ~/bin and ~/local/bin to PATH if they exist.
-for i in "${HOME}/bin" "${HOME}/local/bin"; do
-  [ -d "$i" ] && path_munge "$i"
-done
-
-# Add directories under ~/local/*/bin if they exist.
-for i in $(echo ~/local/*/bin | tr ' ' '\n' | sort -r); do
-  [ -d "$i" ] && path_munge "$i"
-done
-
-# Bin directories under /opt.
-for i in $(echo /opt/*/bin /opt/*/*/bin | tr ' ' '\n' | sort); do
-  [ -d "$i" ] && path_munge "$i" after
-done
-
-# Add directories for system administration tools.
-for i in /usr/local/sbin /sbin /usr/sbin; do
-  [ -d "$i" ] && path_munge "$i" after
-done
+path_munge --nosort "${HOME}/bin" "${HOME}/local/bin"
+path_munge --revsort ~/local/*/bin
+path_munge --after /opt/*/bin /opt/*/*/bin
+path_munge --after --nosort /usr/local/sbin /sbin /usr/sbin
 
 # Make sure ~/.inputrc gets processed.
 [ -f "$HOME/.inputrc" ] && export INPUTRC="$HOME/.inputrc"
