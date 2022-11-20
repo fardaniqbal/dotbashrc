@@ -71,11 +71,10 @@ encode_env_into_TERM() {
 }
 
 ssh_envhack_wrapper() {
-  (export SSH_CLIENT_OSTYPE=${SSH_CLIENT_OSTYPE:-$OSTYPE}
-   export SSH_CLIENT_COLORTERM=${SSH_CLIENT_COLORTERM:-$COLORTERM}
-   export SSH_CLIENT_TERM_PROGRAM=${SSH_CLIENT_TERM_PROGRAM:-$TERM_PROGRAM}
-   export TERM=$(encode_env_into_TERM)
-   exec ssh "$@")
+  SSH_CLIENT_OSTYPE=${SSH_CLIENT_OSTYPE:-$OSTYPE} \
+  SSH_CLIENT_COLORTERM=${SSH_CLIENT_COLORTERM:-$COLORTERM} \
+  SSH_CLIENT_TERM_PROGRAM=${SSH_CLIENT_TERM_PROGRAM:-$TERM_PROGRAM} \
+  TERM=$(encode_env_into_TERM) ssh "$@"
 }
 alias ssh='ssh_envhack_wrapper'
 
