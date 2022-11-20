@@ -26,9 +26,7 @@ vtnorb='\033[01m';    vtblkb='\033[01;30m'; vtredb='\033[01;31m'
 vtgrnb='\033[01;32m'; vtyelb='\033[01;33m'; vtblub='\033[01;34m'
 vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 
-#### MISC UTILITY FUNCTIONS ####
-
-urldecode() { local tmp="${1//+/ }"; printf -- '%b' "${tmp//%/\\x}"; }
+#### ENV INIT: set env vars, options, etc that affect everying else ####
 
 urlencode() {
   while read byte; do
@@ -37,6 +35,8 @@ urlencode() {
     [[ "$chr" == [A-Za-z0-9.~_-] ]] && printf "$chr" || printf "%%$byte"
   done <<< "$(xxd -p -c 1 <<< "$1")"
 }
+
+urldecode() { local tmp="${1//+/ }"; printf -- '%b' "${tmp//%/\\x}"; }
 
 # SSH ENV HACK: when we ssh into a remote host, there's no standard way to
 # pass arbitrary env vars to that host without root access to it.  However,
@@ -57,6 +57,7 @@ decode_env_from_TERM() {
 }
 decode_env_from_TERM
 
+# Call this before running ssh to encode ssh-related env vars into TERM.
 # Example usage: alias ssh='TERM=$(encode_env_into_TERM) ssh'.
 encode_env_into_TERM() {
   local result=$TERM sep='?'
@@ -68,6 +69,8 @@ encode_env_into_TERM() {
   done <<< "$(/usr/bin/env)"
   printf -- "%s\n" "$result"
 }
+
+#### MISC UTILITY FUNCTIONS ####
 
 # Adds the given path to $PATH, unless it's already in $PATH.
 path_munge() {
