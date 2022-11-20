@@ -132,11 +132,7 @@ if [ "$TERM" != "dumb" ] && (which dircolors >/dev/null 2>&1); then
   if [ -f "$HOME/.dircolors" ]; then
     eval "$(dircolors -b "$HOME/.dircolors")"
   else
-    temp_term=$TERM
-    export TERM='xterm' # use xterm colors if no custom dircolors db
-    eval "`dircolors -b`"
-    export TERM=$temp_term
-    unset -v temp_term
+    TERM='xterm' eval "`dircolors -b`" # use xterm colors if no custom db
   fi
 fi
 
