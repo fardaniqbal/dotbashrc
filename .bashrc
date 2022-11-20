@@ -28,6 +28,16 @@ vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 
 #### MISC UTILITY FUNCTIONS ####
 
+urldecode() { local tmp="${1//+/ }"; printf -- '%b' "${tmp//%/\\x}"; }
+
+urlencode() {
+  while read byte; do
+    local chr=$(xxd -r -p <<< "$byte")
+    [ -z "$chr" ] && break
+    [[ "$chr" == [A-Za-z0-9.~_-] ]] && printf "$chr" || printf "%%$byte"
+  done <<< "$(xxd -p -c 1 <<< "$1")"
+}
+
 # SSH ENV HACK: when we ssh into a remote host, there's no standard way to
 # pass arbitrary env vars to that host without root access to it.  However,
 # ssh _does_ pass the TERM env var to the host by default.  We can exploit
