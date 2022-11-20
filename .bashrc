@@ -50,10 +50,9 @@ decode_env_from_TERM() {
   local var_string=${TERM:$((${#bare_term} + 1))}
   export TERM=$bare_term
   IFS='&' read -r -a var_array <<< "$var_string"
-  for i in "${var_array[@]}"; do
-    #local var_name=${i%%=*}
-    #local var_value=${i/#$var_name=/}
-    export "$i" # TODO: percent decode
+  for var in "${var_array[@]}"; do
+    local var_name=${var%%=*}
+    export "$var_name=$(urldecode "${var/#$var_name=}")"
   done
 }
 decode_env_from_TERM
@@ -63,7 +62,8 @@ encode_env_into_TERM() {
   local result=$TERM sep='?'
   while read var; do
     [[ "$var" == SSH_CLIENT_* ]] || continue
-    result="$result$sep$var" # TODO: percent encode
+    local var_name=${var%%=*}
+    result="$result$sep$var_name=$(urlencode "${var/#$var_name=}")"
     sep='&'
   done <<< "$(/usr/bin/env)"
   printf -- "%s\n" "$result"
