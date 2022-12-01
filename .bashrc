@@ -85,16 +85,16 @@ path_pre_munge()  { [[ ":${PATH}:" == *":$1:"* ]] || PATH="$1:${PATH}"; }
 path_post_munge() { [[ ":${PATH}:" == *":$1:"* ]] || PATH="${PATH}:$1"; }
 
 path_munge() {
-  local lines munge_func=path_pre_munge nosort=false sort_flag
+  local sort_flag= do_sort=false munge_func=path_pre_munge
   while [[ "$1" == -* ]]; do
-    [ "$1" = "--after" ] && munge_func=path_post_munge
-    [ "$1" = "--nosort" ] && nosort=true
-    [ "$1" = "--revsort" ] && sort_flag=-r
+    [ "$1" = "--after"   ] && munge_func=path_post_munge
+    [ "$1" = "--sort"    ] && do_sort=true
+    [ "$1" = "--revsort" ] && do_sort=true sort_flag=-r
     shift
   done
-  $nosort && lines=$(printf '%s\n' "$@")
-  $nosort || lines=$(printf '%s\n' "$@" | sort $sort_flag)
-  while read i; do [ -d "$i" ] && $munge_func "$i"; done <<< "$lines"
+  local dirs="$(printf '%s\n' "$@")"
+  $do_sort && dirs="$(printf '%s\n' "$@" | sort $sort_flag)"
+  while read i; do [ -d "$i" ] && $munge_func "$i"; done <<< "$dirs"
 }
 
 # Output the bottom-level command to which the arg(s) are aliased.  E.g.,
@@ -170,10 +170,10 @@ xterm*|rxvt*) # set window title to show current dir's basename
   ;;
 esac
 
-path_munge --nosort "${HOME}/bin" "${HOME}/local/bin"
-path_munge --revsort ~/local/*/bin
-path_munge --after /opt/*/bin /opt/*/*/bin
-path_munge --after --nosort /usr/local/sbin /sbin /usr/sbin
+path_munge --sort ~/local/*/bin
+path_munge "${HOME}/bin" "${HOME}/local/bin"
+path_munge --after --revsort /opt/*/bin /opt/*/*/bin
+path_munge --after /usr/local/sbin /usr/sbin /sbin
 
 # Make sure ~/.inputrc gets processed.
 [ -f "$HOME/.inputrc" ] && export INPUTRC="$HOME/.inputrc"
