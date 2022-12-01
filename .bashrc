@@ -166,8 +166,6 @@ case "${TERM}" in
 xterm*|rxvt*) # set window title to show current dir's basename
   PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: `pwd_short`\007"'
   ;;
-*)
-  ;;
 esac
 
 path_munge --sort ~/local/*/bin
@@ -182,7 +180,7 @@ path_munge --after /usr/local/sbin /usr/sbin /sbin
 [ -f ~/.bash_aliases ] && . ~/.bash_aliases
 
 # Set up EDITOR and related variables.
-export EDITOR=$(expand_alias vim)
+export EDITOR="$(expand_alias vim)"
 export SVN_EDITOR="$EDITOR"
 export CVSEDITOR="$EDITOR"
 export CVS_RSH
