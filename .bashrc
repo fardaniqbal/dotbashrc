@@ -183,6 +183,7 @@ path_munge --after /usr/local/sbin /usr/sbin /sbin
 export EDITOR="$(expand_alias vim)"
 export SVN_EDITOR="$EDITOR"
 export CVSEDITOR="$EDITOR"
+export GIT_SEQUENCE_EDITOR="$EDITOR"
 export CVS_RSH
 export PATH
 export JAVA_TOOLS_OPTIONS="-Dlog4j2.formatMsgNoLookups=true" # log4j vuln.
