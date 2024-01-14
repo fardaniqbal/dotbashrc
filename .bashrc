@@ -28,6 +28,10 @@ vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 
 #### ENV INIT: set env vars, options, etc that affect everying else ####
 
+# Git Bash doesn't set $USER, so use a custom variable here instead.  See
+# [this answer](https://stackoverflow.com/a/23931327) for why we use `id`.
+[ -n "$USER" ] && my_user="$USER" || my_user="$(id -u -n)"
+
 urlencode() {
   while read byte; do
     local chr=$(xxd -r -p <<< "$byte")
@@ -164,7 +168,7 @@ unset -v scheme prompt eb ee
 # If this is an xterm or rxvt set the window title.
 case "${TERM}" in
 xterm*|rxvt*) # set window title to show current dir's basename
-  PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}: `pwd_short`\007"'
+  PROMPT_COMMAND='echo -ne "\033]0;${my_user}@${HOSTNAME}: `pwd_short`\007"'
   ;;
 esac
 
