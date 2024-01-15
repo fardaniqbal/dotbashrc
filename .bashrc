@@ -164,8 +164,8 @@ unset -v scheme prompt eb ee
 case "${TERM}" in
 xterm*|rxvt*) # make window title show current dir's basename
   PROMPT_COMMAND='
-    [ "$PWD" = "$HOME" ] && ps1_pwd="~" || ps1_pwd="${PWD##*/}"
-    echo -ne "\033]0;$my_user@$HOSTNAME: $ps1_pwd\007"'
+    [ "$PWD" = "$HOME" ] && bashrc_pwd_="~" || bashrc_pwd_="${PWD##*/}"
+    echo -ne "\033]0;$my_user@$HOSTNAME: $bashrc_pwd_\007"'
   ;;
 esac
 
