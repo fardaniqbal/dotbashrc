@@ -30,7 +30,7 @@ vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 
 # Git Bash doesn't set $USER, so use a custom variable here instead.  See
 # [this answer](https://stackoverflow.com/a/23931327) for why we use `id`.
-[ -n "$USER" ] && my_user="$USER" || my_user="$(id -u -n)"
+[ -n "$USER" ] && bashrc_user="$USER" || bashrc_user="$(id -u -n)"
 
 urlencode() {
   while read byte; do
@@ -164,8 +164,8 @@ unset -v scheme prompt eb ee
 case "${TERM}" in
 xterm*|rxvt*) # make window title show current dir's basename
   PROMPT_COMMAND='
-    [ "$PWD" = "$HOME" ] && bashrc_pwd_="~" || bashrc_pwd_="${PWD##*/}"
-    echo -ne "\033]0;$my_user@$HOSTNAME: $bashrc_pwd_\007"'
+    [ "$PWD" = "$HOME" ] && bashrc_pwd="~" || bashrc_pwd="${PWD##*/}"
+    echo -ne "\033]0;$bashrc_user@$HOSTNAME: $bashrc_pwd\007"'
   ;;
 esac
 
