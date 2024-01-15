@@ -119,11 +119,6 @@ expand_alias() {
   printf "%s\n" "$cmd $args" | sed 's/ *$//' # trim trailing spaces
 }
 
-# Like 'pwd', but print only the directory's basename, NOT the full path.
-# If current directory is home directory, then just print "~".
-# !!! THIS FUNCTION IS USED BY ${PROMPT_COMMAND} !!!
-pwd_short() { [ "${PWD}" = "${HOME}" ] && echo '~' || basename "${PWD}"; }
-
 #### BEGIN BASHRC PROPER ####
 
 export HISTCONTROL=ignoredups # don't put duplicate lines in history
@@ -167,8 +162,10 @@ unset -v scheme prompt eb ee
 
 # If this is an xterm or rxvt set the window title.
 case "${TERM}" in
-xterm*|rxvt*) # set window title to show current dir's basename
-  PROMPT_COMMAND='echo -ne "\033]0;${my_user}@${HOSTNAME}: `pwd_short`\007"'
+xterm*|rxvt*) # make window title show current dir's basename
+  PROMPT_COMMAND='
+    [ "$PWD" = "$HOME" ] && ps1_pwd="~" || ps1_pwd="${PWD##*/}"
+    echo -ne "\033]0;$my_user@$HOSTNAME: $ps1_pwd\007"'
   ;;
 esac
 
