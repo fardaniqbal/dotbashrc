@@ -130,7 +130,7 @@ set -o ignoreeof      # prevent Ctrl+D from quitting the shell
 shopt -s cdspell      # fix typos
 shopt -s checkwinsize # update $LINES and $COLUMNS on window resize
 umask 0022            # mask out these permission bits when creating files
-mesg n                # people have way too much fun with this...
+mesg n 2>/dev/null    # people have way too much fun with this...
 
 # Make less more friendly for non-text input files, see lesspipe(1).
 [ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
@@ -163,7 +163,7 @@ unset -v scheme prompt eb ee
 # If this is an xterm or rxvt set the window title.
 case "${TERM}" in
 xterm*|rxvt*) # make window title show current dir's basename
-              # !!! subprocesses here are expensive !!!
+              # !!! subprocesses in PROMPT_COMMAND are expensive !!!
   PROMPT_COMMAND='
     [ "$PWD" = "$HOME" ] && bashrc_pwd="~" || bashrc_pwd="${PWD##*/}"
     echo -ne "\033]0;$bashrc_user@$HOSTNAME: $bashrc_pwd\007"'
