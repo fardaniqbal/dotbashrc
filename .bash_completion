@@ -1,6 +1,5 @@
 # -*- shell-script -*-
 # Fardan's ~/.bash_completion
-# Last updated 2016.12.15
 
 # Completion for commands that expect directory names.
 complete -o dirnames cd
@@ -10,7 +9,7 @@ complete -o dirnames rmdir
 # Complete process names for 'pidof'.
 _completions_for_pidof ()
 {
-  local cur="${COMP_WORDS[COMP_CWORD]}"
+  local procs="" cur="${COMP_WORDS[COMP_CWORD]}"
   COMPREPLY=()
 
   case "$cur" in
@@ -18,13 +17,27 @@ _completions_for_pidof ()
       COMPREPLY=( $(compgen -W '-s -c -x -o' -- "$cur") )
       ;;
     *)
-      # Get list of process names, and generate completions case-insensitively.
-      # Note that "ps -eo comm=" will not work for long process names.  Instead
-      # use "ps -eo cmd=" to get each process's full command line, then use awk
-      # and sed to filter out everything but the executable name.
-      local procs=$(ps -eo cmd=)
-      procs=$(echo "$procs" | awk '{print $1;}' | sed 's|\(.*/\)*||g')
-      COMPREPLY=( $(echo "$procs" | grep -i "^$cur") )
+      # Get list of process names.
+      case "$(uname -s)" in
+        CYGWIN*|MINGW*|MSYS*)
+          # ps doesn't support -o (output format) on Cygwin/MinGW/etc, so
+          # manually extract the process name from ps's output.
+          local psout="$(ps -eW)";
+          local offset="$(head -n1 <<<"$psout" | grep -ob 'COMMAND' |
+                          sed 's|^\([0-9]*\)[^0-9]*$|\1|')"
+          procs="$(tail -n+2 <<<"$psout" | cut -c$(($offset + 1))- |
+                   sed 's|\(.*[/\\]\)*||g')"
+          ;;
+        *)
+          # Get list of process names.  Note that "ps -eo comm=" will not
+          # work for long process names.  Instead use "ps -eo cmd=" to get
+          # each process's full command line, then use awk and sed to
+          # filter out everything but the executable name.
+          procs=$(ps -eo cmd= | awk '{print $1;}' | sed 's|\(.*/\)*||g')
+          ;;
+      esac
+      # Generate case-insensitive completions.
+      COMPREPLY=( $(grep -i "^$cur" <<<"$procs") )
       ;;
   esac
   return 0
