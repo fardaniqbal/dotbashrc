@@ -25,7 +25,7 @@ _completions_for_pidof ()
           local psout="$(ps -eW)";
           local offset="$(head -n1 <<<"$psout" | grep -ob 'COMMAND' |
                           sed 's|^\([0-9]*\)[^0-9]*$|\1|')"
-          procs="$(tail -n+2 <<<"$psout" | cut -c$(($offset + 1))- |
+          procs="$(tail -n+2 <<<"$psout" | cut -b$(($offset + 1))- |
                    sed 's|\(.*[/\\]\)*||g')"
           ;;
         *)
