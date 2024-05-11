@@ -171,6 +171,18 @@ xterm*|rxvt*) # make window title show current dir's basename
   ;;
 esac
 
+# Print message if previous command's output didn't have a trailing
+# newline.  Implementation based on https://stackoverflow.com/a/20156527.
+_prompt_check_eol() {
+  local row col
+  while read -t 0; do :; done       # clear tty input buffer
+  echo -ne '\033[6n'                # control code to get cursor pos
+  IFS='[;' read -s -d R _ row col   # read cursor pos into $row and $col
+  ((col > 1)) && (echo; echo -e "$eb$vtredb$ee$1$eb$vtnor$ee")
+}
+PROMPT_COMMAND="$PROMPT_COMMAND;
+  _prompt_check_eol '(no newline at end of output)'"
+
 path_munge --sort ~/local/*/bin
 path_munge "${HOME}/bin" "${HOME}/local/bin"
 path_munge --after --revsort /opt/*/bin /opt/*/*/bin
