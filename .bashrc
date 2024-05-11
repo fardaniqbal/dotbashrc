@@ -116,7 +116,8 @@ expand_alias() {
     args="$(restargs $cmd) $args"
     cmd=$(firstarg $cmd)
   done
-  printf "%s\n" "$cmd $args" | sed 's/ *$//' # trim trailing spaces
+  cmd="$cmd $args"
+  printf "%s\n" "${cmd%"${cmd##*[^[:space:]]}"}" # trim trailing spaces
 }
 
 #### BEGIN BASHRC PROPER ####
