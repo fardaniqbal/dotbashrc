@@ -137,7 +137,7 @@ mesg n 2>/dev/null    # people have way too much fun with this...
 [ -x /usr/bin/lesspipe ] && eval "$(lesspipe)"
 
 # Enable color support for ls.
-if [ "$TERM" != "dumb" ] && (which dircolors >/dev/null 2>&1); then
+if [ "$TERM" != "dumb" ] && (type dircolors >/dev/null 2>&1); then
   if [ -f "$HOME/.dircolors" ]; then
     eval "$(dircolors -b "$HOME/.dircolors")"
   else
