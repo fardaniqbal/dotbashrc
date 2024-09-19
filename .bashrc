@@ -204,6 +204,7 @@ export PATH
 export JAVA_TOOLS_OPTIONS="-Dlog4j2.formatMsgNoLookups=true" # log4j vuln.
 
 # Colorize man pages.
+[ -n "$PAGER" ] || export PAGER="$(expand_alias less)"
 export LESS_TERMCAP_mb=$'\e[0;31m'      # begin bold
 export LESS_TERMCAP_md=$'\e[0;32m'      # begin blink
 export LESS_TERMCAP_so=$'\e[0;42;30m'   # begin standout colors
