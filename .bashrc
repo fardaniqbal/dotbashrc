@@ -149,6 +149,7 @@ fi
 # on the terminal type and whether or not we're root.
 [ $UID -eq 0 ] && scheme=${vtredb} || scheme=${vtcya}
 [ $UID -eq 0 ] && prompt='#'       || prompt='\$'
+[[ "$OSTYPE" == *solaris* ]]       && scheme=${vtprp}
 
 if [ "$OSTYPE" = "Darwin" ]; then
   # Escape codes in PS1 mess up the terminal on older versions of Mac OS X.
