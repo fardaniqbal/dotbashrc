@@ -120,6 +120,29 @@ expand_alias() {
   printf "%s\n" "${cmd%"${cmd##*[^[:space:]]}"}" # trim trailing spaces
 }
 
+# Follow symlink $1 until it points to a non-symlink.
+follow_symlinks() {
+  if type realpath >/dev/null; then realpath -- "$1"; return; fi
+  if type readlink >/dev/null; then readlink -f -- "$1"; return; fi
+
+  # Native tools aren't available, so do it the slow way.
+  local dir="$(cd "$(dirname "$1")" && pwd)"
+  if [ $? -ne 0 ]; then printf '%s\n' "$1"; return; fi
+  local file="$dir/$(basename "$1")"
+  local max_count=100
+  while [ -L "$file" ] && [ $max_count -gt 0 ]; do
+    file="$(ls -lad "$file")"
+    file="${file#*-> }"
+    dir="$(cd "$(dirname "$file")" && pwd)"
+    if [ $? -ne 0 ]; then printf '%s\n' "$file"; return; fi
+    file="$dir/$(basename "$file")"
+    max_count=$(($max_count - 1))
+  done
+  printf '%s\n' "$file"
+}
+
+bashrc_dir="$(dirname "$(follow_symlinks "$BASH_SOURCE")")"
+
 #### BEGIN BASHRC PROPER ####
 
 export HISTCONTROL=ignoredups # don't put duplicate lines in history
@@ -172,7 +195,7 @@ xterm*|rxvt*) # make window title show current dir's basename
   ;;
 esac
 
-# Print message if previous command's output didn't have a trailing
+# Print message $1 if previous command's output didn't have a trailing
 # newline.  Implementation based on https://stackoverflow.com/a/20156527.
 _prompt_check_eol() {
   local row col
@@ -193,7 +216,7 @@ path_munge --after /usr/local/sbin /usr/sbin /sbin
 [ -f "$HOME/.inputrc" ] && export INPUTRC="$HOME/.inputrc"
 
 # Define your own aliases here.
-[ -f ~/.bash_aliases ] && . ~/.bash_aliases
+[ -f "$bashrc_dir/.bash_aliases" ] && . "$bashrc_dir/.bash_aliases"
 
 # Set up EDITOR and related variables.
 export EDITOR="$(expand_alias vim)"
@@ -230,7 +253,7 @@ if ! shopt -oq posix; then
   elif [ -f /usr/local/etc/bash_completion ]; then
     . /usr/local/etc/bash_completion
   fi
-  [ -f ~/.bash_completion ] && . ~/.bash_completion
+  [ -f "$bashrc_dir/.bash_completion" ] && . "$bashrc_dir/.bash_completion"
 fi
 #[ -f /etc/bash_completion ] && . /etc/bash_completion
 true # make exit code be 0 (for debugging this script)

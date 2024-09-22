@@ -12,8 +12,7 @@ mkdir -p ~/dotfiles
 cd ~/dotfiles
 git clone --recurse-submodules git@github.com:fardaniqbal/dotbashrc.git
 ln -s dotfiles/dotbashrc/.bashrc ~/.bashrc
-ln -s dotfiles/dotbashrc/.bash_aliases ~/.bash_aliases
-...etc...
+ln -s dotfiles/dotbashrc/.bash_profile ~/.bash_profile
 ```
 
 Optionally, if you're using GNU `ls` but you don't like the colors it uses
