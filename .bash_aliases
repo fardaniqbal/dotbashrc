@@ -51,6 +51,10 @@ alias vi='vim'
 alias octave='octave -q'  # inhibit octave startup message
 alias tree='tree -C'
 
+# Either this or spam newlines (see https://askubuntu.com/a/473770).
+alias clear="clear && printf '\e[3J'"
+alias cls='clear'
+
 # If emacs has been set up to use a GUI window, make an alias that forces
 # it to run inside the terminal.
 if (emacs --help | grep -E '[[:space:]]-nw[,[:space:]]') > /dev/null 2>&1; then
