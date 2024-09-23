@@ -140,8 +140,36 @@ follow_symlinks() {
   done
   printf '%s\n' "$file"
 }
-
 bashrc_dir="$(dirname "$(follow_symlinks "$BASH_SOURCE")")"
+
+# Run make and colorize its output if stdout/stderr are terminals.
+colormake() {
+  # Run make the normal way if we're not outputting to a terminal.
+  [ "x$MAKE" = "x" ] && MAKE=make
+  if [ ! -t 1 ] || [ ! -t 2 ]; then "$MAKE" "$@"; return $?; fi
+
+  # Force compiler to color errors/warnings if supported.
+  local sed='sed' colorflag=''
+  echo | cc -Werror -fdiagnostics-color -o /dev/null -c -E - 2>/dev/null &&
+    colorflag='-fdiagnostics-color'
+  type 'gsed' >/dev/null 2>&1 && sed='gsed'
+
+  local err="$(echo  -e '\033[01;31m')"
+  local warn="$(echo -e '\033[01;33m')"
+  local out="$(echo  -e '\033[01;35m')"
+  local nor="$(echo  -e '\033[00m')"
+  CFLAGS="$CFLAGS $colorflag"     \
+  CXXFLAGS="$CXXFLAGS $colorflag" \
+  CCFLAGS="$CCFLAGS $colorflag"   \
+  CPPFLAGS="$CPPFLAGS $colorflag" \
+  "$MAKE" "$@" 2>&1 | "$sed" -E   \
+    -e $'s,([ \t]-o[ \t]*[^ \t]+),'$out'\1'$nor',g'                \
+    -e $'s,(>>?[ \t]*[^ \t]+),'$out'\1'$nor',g'                    \
+    -e $'s,^([^:]+:([ \t]*[0-9]+:?)*.*[Ee]rror.*),'$err'\1'$nor',' \
+    -e $'s,^([^:]+:([ \t]*[0-9]+:?)*),'$warn'\1'$nor','
+  return ${PIPESTATUS[0]}
+}
+alias make='colormake'
 
 #### BEGIN BASHRC PROPER ####
 
