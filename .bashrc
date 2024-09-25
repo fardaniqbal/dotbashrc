@@ -122,8 +122,8 @@ expand_alias() {
 
 # Follow symlink $1 until it points to a non-symlink.
 follow_symlinks() {
-  if type realpath >/dev/null; then realpath -- "$1"; return; fi
-  if type readlink >/dev/null; then readlink -f -- "$1"; return; fi
+  if type realpath >/dev/null 2>&1; then realpath -- "$1"; return; fi
+  if type readlink >/dev/null 2>&1; then readlink -f -- "$1"; return; fi
 
   # Native tools aren't available, so do it the slow way.
   local dir="$(cd "$(dirname "$1")" && pwd)"
