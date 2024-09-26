@@ -149,24 +149,25 @@ colormake() {
   if [ ! -t 1 ] || [ ! -t 2 ]; then "$MAKE" "$@"; return $?; fi
 
   # Force compiler to color errors/warnings if supported.
-  local sed='sed' colorflag=''
   echo | cc -Werror -fdiagnostics-color -o /dev/null -c -E - 2>/dev/null &&
-    colorflag='-fdiagnostics-color'
-  type 'gsed' >/dev/null 2>&1 && sed='gsed'
+    local colorflag='-fdiagnostics-color' || local colorflag=''
+  type 'gsed' >/dev/null 2>&1 && local SED='gsed' || local SED='sed'
 
-  local err="$(echo  -e '\033[01;31m')"
+  local info="$(echo -e '\033[01;35m')"
   local warn="$(echo -e '\033[01;33m')"
-  local out="$(echo  -e '\033[01;35m')"
+  local err="$(echo  -e '\033[01;31m')"
+  local out="$(echo  -e '\033[00;36m')"
   local nor="$(echo  -e '\033[00m')"
   CFLAGS="$CFLAGS $colorflag"     \
   CXXFLAGS="$CXXFLAGS $colorflag" \
   CCFLAGS="$CCFLAGS $colorflag"   \
   CPPFLAGS="$CPPFLAGS $colorflag" \
-  "$MAKE" "$@" 2>&1 | "$sed" -E   \
-    -e $'s,([ \t]-o[ \t]*[^ \t]+),'$out'\1'$nor',g'                \
-    -e $'s,(>>?[ \t]*[^ \t]+),'$out'\1'$nor',g'                    \
-    -e $'s,^([^:]+:([ \t]*[0-9]+:?)*.*[Ee]rror.*),'$err'\1'$nor',' \
-    -e $'s,^([^:]+:([ \t]*[0-9]+:?)*),'$warn'\1'$nor','
+  "$MAKE" "$@" 2>&1 | "$SED" -E   \
+    -e $'s,([ \t]-o[ \t]*[^ \t]+),'$out'\1'$nor',g' \
+    -e $'s,(>>?[^>]+)$,'$out'\1'$nor',g' \
+    -e $'s,^[^:]+*:.*[Ee]rror.*,'$err'&'$nor',' \
+    -e $'s,^[^:]+*:.*[Ww]arn.*,'$warn'&'$nor',' \
+    -e $'s,^[^:\033]*make[^:]*:,'$info'&'$nor','
   return ${PIPESTATUS[0]}
 }
 alias make='colormake'
