@@ -164,9 +164,9 @@ colormake() {
   CPPFLAGS="$CPPFLAGS $colorflag" \
   "$MAKE" "$@" 2>&1 | "$SED" -E   \
     -e $'s,([ \t]-o[ \t]*[^ \t]+),'$out'\1'$nor',g' \
-    -e $'s,(>>?[^>]+)$,'$out'\1'$nor',g' \
-    -e $'s,^[^:]+*:.*[Ee]rror.*,'$err'&'$nor',' \
-    -e $'s,^[^:]+*:.*[Ww]arn.*,'$warn'&'$nor',' \
+    -e $'s,(>>?[^>]+)$,'$out'\1'$nor',g'            \
+    -e $'s,^[^:]+:.*[Ee]rror.*,'$err'&'$nor','      \
+    -e $'s,^[^:]+:.*[Ww]arn.*,'$warn'&'$nor','      \
     -e $'s,^[^:\033]*make[^:]*:,'$info'&'$nor','
   return ${PIPESTATUS[0]}
 }
