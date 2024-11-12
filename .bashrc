@@ -216,8 +216,8 @@ unset -v scheme prompt eb ee
 
 # If this is an xterm or rxvt set the window title.
 case "${TERM}" in
-xterm*|rxvt*) # make window title show current dir's basename
-              # !!! subprocesses in PROMPT_COMMAND are expensive !!!
+xterm*|rxvt*|tmux*) # make window title show current dir's basename
+                    # !!! subprocesses in PROMPT_COMMAND are expensive !!!
   PROMPT_COMMAND='
     [ "$PWD" = "$HOME" ] && bashrc_pwd="~" || bashrc_pwd="${PWD##*/}"
     echo -ne "\033]0;$bashrc_user@$HOSTNAME: $bashrc_pwd\007"'
