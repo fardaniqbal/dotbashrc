@@ -229,9 +229,10 @@ esac
 # newline.  Implementation based on https://stackoverflow.com/a/20156527.
 _prompt_check_eol() {
   local row col
-  while read -t 0; do :; done       # clear tty input buffer
+  stty -echo                        # disable echoing
   echo -ne '\033[6n'                # control code to get cursor pos
   IFS='[;' read -s -d R _ row col   # read cursor pos into $row and $col
+  stty echo                         # reenable echoing
   ((col > 1)) && (echo; echo -e "$eb$vtredb$ee$1$eb$vtnor$ee")
 }
 PROMPT_COMMAND="$PROMPT_COMMAND;
