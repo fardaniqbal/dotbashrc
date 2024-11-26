@@ -47,6 +47,7 @@ alias fgrep='fgrep --color=auto'
 alias rgrep='rgrep --color=auto'
 
 alias gsh='groovysh --color=true -q'
+type nvim >/dev/null 2>&1 && alias vim='nvim'
 alias vi='vim'
 alias octave='octave -q'  # inhibit octave startup message
 alias tree='tree -C'
