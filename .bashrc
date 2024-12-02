@@ -257,6 +257,7 @@ export GIT_SEQUENCE_EDITOR="$EDITOR"
 export CVS_RSH
 export PATH
 export JAVA_TOOLS_OPTIONS="-Dlog4j2.formatMsgNoLookups=true" # log4j vuln.
+export NPM_PACKAGES="$HOME/local/npm-packages"
 
 # Colorize man pages.
 [ -n "$PAGER" ] || export PAGER="$(expand_alias less)"
