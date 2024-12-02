@@ -46,8 +46,15 @@ alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias rgrep='rgrep --color=auto'
 
+if command -v nvim >/dev/null 2>&1; then
+  if [ $(expr "$OSTYPE" : 'win\|msys\|cygwin') -ne 0 ]; then
+    # NeoVim breaks on Windows when bash sets SHELL.
+    nvim() { (unset -v SHELL; command exec nvim "$@"); }
+  fi
+  alias vim='nvim'
+fi
+
 alias gsh='groovysh --color=true -q'
-type nvim >/dev/null 2>&1 && alias vim='nvim'
 alias vi='vim'
 alias octave='octave -q'  # inhibit octave startup message
 alias tree='tree -C'
