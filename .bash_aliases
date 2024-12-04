@@ -58,6 +58,7 @@ alias gsh='groovysh --color=true -q'
 alias vi='vim'
 alias octave='octave -q'  # inhibit octave startup message
 alias tree='tree -C'
+alias diff='diff --color=auto'
 
 # Either this or spam newlines (see https://askubuntu.com/a/473770).
 alias clear="clear && printf '\e[3J'"
