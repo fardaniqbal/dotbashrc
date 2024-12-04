@@ -261,9 +261,9 @@ export NPM_PACKAGES="$HOME/local/npm-packages"
 
 # Colorize man pages.
 [ -n "$PAGER" ] || export PAGER="$(expand_alias less)"
-export LESS_TERMCAP_mb=$'\e[0;31m'      # begin bold
-export LESS_TERMCAP_md=$'\e[0;32m'      # begin blink
-export LESS_TERMCAP_so=$'\e[0;42;30m'   # begin standout colors
+export LESS_TERMCAP_mb=$'\e[01;31m'     # begin bold
+export LESS_TERMCAP_md=$'\e[01;33m'     # begin blink
+export LESS_TERMCAP_so=$'\e[01;42;30m'  # begin standout colors
 export LESS_TERMCAP_us=$'\e[0;36m'      # begin underline
 export LESS_TERMCAP_me=$'\e[0m'         # end bold/blink
 export LESS_TERMCAP_se=$'\e[0m'         # end standout colors
