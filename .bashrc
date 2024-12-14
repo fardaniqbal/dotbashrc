@@ -223,6 +223,8 @@ xterm*|rxvt*|screen*|tmux*)
     [ "$PWD" = "$HOME" ] && bashrc_pwd="~" || bashrc_pwd="${PWD##*/}"
     echo -ne "\033]0;$bashrc_user@$HOSTNAME: $bashrc_pwd\007"'
   ;;
+*) PROMPT_COMMAND=':'   # noop on unknown $TERM (prevents error on prompt)
+  ;;
 esac
 
 # Print message $1 if previous command's output didn't have a trailing
