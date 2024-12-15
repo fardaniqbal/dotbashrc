@@ -240,6 +240,7 @@ _prompt_check_eol() {
 PROMPT_COMMAND="$PROMPT_COMMAND;
   _prompt_check_eol '(no newline at end of output)'"
 
+path_munge /usr/local/bin
 path_munge --sort ~/local/*/bin
 path_munge "${HOME}/bin" "${HOME}/local/bin"
 path_munge --after --revsort /opt/*/bin /opt/*/*/bin
