@@ -49,7 +49,7 @@ alias rgrep='rgrep --color=auto'
 if command -v nvim >/dev/null 2>&1; then
   if [ $(expr "$OSTYPE" : 'win\|msys\|cygwin') -ne 0 ]; then
     # NeoVim breaks on Windows when bash sets SHELL.
-    nvim() { (unset -v SHELL; command exec nvim "$@"); }
+    nvim() { (unset -v SHELL; command nvim "$@"); }
   fi
   alias vim='nvim'
 fi
@@ -74,3 +74,4 @@ alias em='emacsclient'
 
 #[ "$TERM" != "screen" ] && alias screen='screen -dRR'
 [ "$TERM" != "screen" ] && alias screen='screen -dR'
+alias tmux="tmux-select.sh"

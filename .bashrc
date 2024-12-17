@@ -245,6 +245,8 @@ path_munge --sort ~/local/*/bin
 path_munge "${HOME}/bin" "${HOME}/local/bin"
 path_munge --after --revsort /opt/*/bin /opt/*/*/bin
 path_munge --after /usr/local/sbin /usr/sbin /sbin
+path_munge --after "$bashrc_dir/bin"
+export PATH
 
 # Make sure ~/.inputrc gets processed.
 [ -f "$HOME/.inputrc" ] && export INPUTRC="$HOME/.inputrc"
@@ -258,7 +260,6 @@ export SVN_EDITOR="$EDITOR"
 export CVSEDITOR="$EDITOR"
 export GIT_SEQUENCE_EDITOR="$EDITOR"
 export CVS_RSH
-export PATH
 export JAVA_TOOLS_OPTIONS="-Dlog4j2.formatMsgNoLookups=true" # log4j vuln.
 export NPM_PACKAGES="$HOME/local/npm-packages"
 
