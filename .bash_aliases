@@ -22,18 +22,13 @@ fi
 
 # Make ls group directories first.
 if ls --group-directories-first ~/.bashrc > /dev/null 2>&1; then
-  # Directory grouping supported "natively".
   ls_opts="$ls_opts --group-directories-first"
-elif [ -x ~/local/bin/lx ]; then
-  # Use the lx wrapper for directory grouping.
-  alias lx='lx --color=auto'
 fi
-
-# Trim whitespace from $ls_opts.
-while [ x"${ls_opts# }" != x"$ls_opts" ]; do ls_opts=${ls_opts# }; done
-while [ x"${ls_opts% }" != x"$ls_opts" ]; do ls_opts=${ls_opts% }; done
 alias ls="ls $ls_opts"
 unset -v ls_opts
+
+# Do the same for gls (not a problem if gls isn't available on the system).
+alias gls='gls --color=auto --group-directories-first'
 
 alias cp='cp -i'
 alias mv='mv -i'
