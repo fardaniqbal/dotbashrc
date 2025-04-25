@@ -44,7 +44,7 @@ alias rgrep='rgrep --color=auto'
 if command -v nvim >/dev/null 2>&1; then
   if [ $(expr "$OSTYPE" : 'win\|msys\|cygwin') -ne 0 ]; then
     # NeoVim breaks on Windows when bash sets SHELL.
-    nvim() { (unset -v SHELL; command nvim "$@"); }
+    alias nvim='SHELL="" run-with-winpath.sh '"$(expand_alias nvim)"
   fi
   alias vim='nvim'
 fi
