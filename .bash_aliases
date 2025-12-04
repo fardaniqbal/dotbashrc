@@ -52,6 +52,7 @@ fi
 alias gsh='groovysh --color=true -q'
 alias vi='vim'
 alias octave='octave -q'  # inhibit octave startup message
+alias mvndep='mvn dependency:tree -Dverbose=true'
 alias tree='tree -C'
 alias diff='diff --color=auto'
 
