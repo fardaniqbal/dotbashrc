@@ -32,14 +32,18 @@ vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 # [this answer](https://stackoverflow.com/a/23931327) for why we use `id`.
 [ -n "$USER" ] && bashrc_user="$USER" || bashrc_user="$(id -u -n)"
 
+# Encode string $1 URL-style.  E.g., `urlencode 'this is a test'` results
+# in 'this%20is%20a%20test'.
 urlencode() {
   while read byte; do
     local chr=$(xxd -r -p <<< "$byte")
     [ -z "$chr" ] && break
-    [[ "$chr" == [A-Za-z0-9.~_-] ]] && printf "$chr" || printf "%%$byte"
+    [[ "$chr" == [A-Za-z0-9.~_-] ]] || chr="%$byte"
+    printf '%s' "$chr"
   done <<< "$(xxd -p -c 1 <<< "$1")"
 }
 
+# Reverse of urlencode.  E.g. turn 'foo%20bar' into 'foo bar'.
 urldecode() { local tmp="${1//+/ }"; printf -- '%b' "${tmp//%/\\x}"; }
 
 # SSH ENV HACK: when we ssh into a remote host, there's no standard way to
