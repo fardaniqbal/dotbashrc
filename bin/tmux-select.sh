@@ -20,7 +20,7 @@ sessions="$(tmux list-sessions -F "$ls_fmt" 2>/dev/null)"
 
 # If already inside a tmux session, then switch to the selected session.
 [ -z "$TMUX" ] && tmux_cmd="tmux a -t" || tmux_cmd="tmux switch-client -t"
-tmpfile="$(mktemp "/tmp/$(basename "$0").XXXXXX")" || exit 1
+tmpfile="$(mktemp -t "$(basename "$0").XXXXXX")" || exit 1
 trap "rm -f \"$tmpfile\"" 0 1 2 3 15
 
 # Fuzzy find over the session list.  NOTE: can't just pipe fzf's output
