@@ -28,6 +28,16 @@ vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 
 #### ENV INIT: set env vars, options, etc that affect everying else ####
 
+# Try to create real symlinks if we're on MSYS/MinGW/etc.  NOTE: to create
+# real symlinks, we must either be admin, or the developer-mode setting to
+# allow non-admins to create symlinks must be enabled.  NOTE 2: we detect
+# Windows by checking common Windows env vars instead of `uname` because,
+# even though `uname` is more accurate, it's also yet another thing that
+# slows down bash startup.
+if [ -n "$WINDIR$USERPROFILE$PROGRAMFILES" ]; then
+  export MSYS='winsymlinks:nativestrict'
+fi
+
 # Git Bash doesn't set $USER, so use a custom variable here instead.  See
 # [this answer](https://stackoverflow.com/a/23931327) for why we use `id`.
 [ -n "$USER" ] && bashrc_user="$USER" || bashrc_user="$(id -u -n)"
