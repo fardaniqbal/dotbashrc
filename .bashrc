@@ -306,4 +306,7 @@ if ! shopt -oq posix; then
   [ -f "$bashrc_dir/.bash_completion" ] && . "$bashrc_dir/.bash_completion"
 fi
 #[ -f /etc/bash_completion ] && . /etc/bash_completion
-true # make exit code be 0 (for debugging this script)
+
+# THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+alias sdk='unalias sdk && export SDKMAN_DIR="$HOME/.sdkman" &&
+ [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh" && sdk'
