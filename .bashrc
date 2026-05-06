@@ -119,16 +119,16 @@ path_munge() {
 # if `ll` is aliased to `ls -lh` and `ls` is aliased to `ls -G`, then
 # `expand_alias ll -A` will output `ls -G -lh -A`.
 expand_alias() {
-  firstarg() { printf "%s" "$1"; }
-  restargs() { shift; printf "%s" "$*"; }
-  local cmd=$(firstarg $@) cmd_prev="" args=$(restargs $@)
-  while alias "$cmd" >/dev/null 2>&1 && [ "$cmd" != "$cmd_prev" ]; do
+  expand_firstarg_() { printf "%s" "$1"; }
+  expand_restargs_() { shift; printf "%s" "$*"; }
+  local cmd=$(expand_firstarg_ $@) cmd_prev="" args=$(expand_restargs_ $@)
+  while alias "${cmd%%=*}" >/dev/null 2>&1 && [ "$cmd" != "$cmd_prev" ]; do
     cmd_prev=$cmd
     cmd=$(alias "$cmd")
     cmd=${cmd#*\'}
     cmd=${cmd%\'}
-    args="$(restargs $cmd) $args"
-    cmd=$(firstarg $cmd)
+    args="$(expand_restargs_ $cmd) $args"
+    cmd=$(expand_firstarg_ $cmd)
   done
   cmd="$cmd $args"
   printf "%s\n" "${cmd%"${cmd##*[^[:space:]]}"}" # trim trailing spaces
