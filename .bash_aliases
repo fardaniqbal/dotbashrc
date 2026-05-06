@@ -42,9 +42,13 @@ alias fgrep='fgrep --color=auto'
 alias rgrep='rgrep --color=auto'
 
 if command -v nvim >/dev/null 2>&1; then
-  if [ $(expr "$OSTYPE" : 'win\|msys\|cygwin') -ne 0 ]; then
-    # NeoVim breaks on Windows when bash sets SHELL.
-    alias nvim='SHELL="" run-with-winpath.sh '"$(expand_alias nvim)"
+  case "$OSTYPE" in
+    win*|msys*|cygwin*) # NeoVim breaks on Windows when bash sets SHELL.
+      alias nvim='SHELL="" run-with-winpath.sh '"$(expand_alias nvim)";;
+  esac
+  if [ -e "$HOME/.sdkman" ]; then
+    # Initialize sdkman before the first time we start nvim.
+    alias nvim='sdk >/dev/null 2>&1; alias nvim='"'$(expand_alias nvim)'"'; nvim'
   fi
   alias vim='nvim'
 fi
