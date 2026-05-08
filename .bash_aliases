@@ -41,9 +41,9 @@ alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias rgrep='rgrep --color=auto'
 
-if command -v nvim >/dev/null 2>&1; then
+if (unalias nvim; unset -f nvim; command -v nvim) >/dev/null 2>&1; then
   case "$OSTYPE" in
-    win*|msys*|cygwin*) # NeoVim breaks on Windows when bash sets SHELL.
+    win*|msys*|cygwin*) # Neovim breaks on Windows when bash sets SHELL.
       alias nvim='SHELL="" run-with-winpath.sh '"$(expand_alias nvim)";;
   esac
   if [ -e "$HOME/.sdkman" ]; then
