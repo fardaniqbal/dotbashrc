@@ -254,6 +254,8 @@ _prompt_check_eol() {
 PROMPT_COMMAND="$PROMPT_COMMAND;
   _prompt_check_eol '(no newline at end of output)'"
 
+# Include Homebrew's PATH additions before sourcing .bash_aliases.
+[ -x /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv)"
 #path_munge /usr/local/bin
 path_munge "$HOME/.local/bin"
 path_munge --sort ~/local/*/bin
