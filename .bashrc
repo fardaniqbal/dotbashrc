@@ -42,57 +42,55 @@ fi
 # [this answer](https://stackoverflow.com/a/23931327) for why we use `id`.
 [ -n "$USER" ] && bashrc_user="$USER" || bashrc_user="$(id -u -n)"
 
-# Encode string $1 URL-style.  E.g., `urlencode 'this is a test'` results
-# in 'this%20is%20a%20test'.
-urlencode() {
-  while read byte; do
-    local chr=$(xxd -r -p <<< "$byte")
-    [ -z "$chr" ] && break
-    [[ "$chr" == [A-Za-z0-9.~_-] ]] || chr="%$byte"
-    printf '%s' "$chr"
-  done <<< "$(xxd -p -c 1 <<< "$1")"
-}
-
-# Reverse of urlencode.  E.g. turn 'foo%20bar' into 'foo bar'.
-urldecode() { local tmp="${1//+/ }"; printf -- '%b' "${tmp//%/\\x}"; }
-
-# SSH ENV HACK: when we ssh into a remote host, there's no standard way to
-# pass arbitrary env vars to that host without root access to it.  However,
-# ssh _does_ pass the TERM env var to the host by default.  We can exploit
-# this to pass other env vars to the ssh host:
-# 1. On the client, encode env vars into TERM right before running the ssh
-#    client (URL-style, e.g. TERM="xterm?SSH_VAR_1=foo&SSH_VAR_2=bar".)
-# 2. On the host, decode the env vars out of TERM in the host's bashrc.
-decode_env_from_TERM() {
-  local bare_term=${TERM%%\?*}
-  local var_string=${TERM:$((${#bare_term} + 1))}
-  export TERM=$bare_term
-  IFS='&' read -r -a var_array <<< "$var_string"
-  for var in "${var_array[@]}"; do
-    local var_name=${var%%=*}
-    export "$var_name=$(urldecode "${var/#$var_name=}")"
-  done
-}
-decode_env_from_TERM
-
-# Call this before running ssh to encode ssh-related env vars into TERM.
-# Example usage: alias ssh='TERM=$(encode_env_into_TERM) ssh'.
-encode_env_into_TERM() {
-  local result=$TERM sep='?'
-  while read var; do
-    [[ "$var" == SSH_CLIENT_* ]] || continue
-    local var_name=${var%%=*}
-    result="$result$sep$var_name=$(urlencode "${var/#$var_name=}")"
-    sep='&'
-  done <<< "$(/usr/bin/env)"
-  printf -- "%s\n" "$result"
-}
-
+# SSH ENV HACK: with ssh, there's no standard way to pass arbitrary env
+# vars to the remote host without root access to it.  A workaround is to
+# tell ssh to run a command on the host that sets the env vars we want,
+# then explicitly run a login shell:
+#
+#     ssh -t HOST "/bin/sh -c 'export FOO=asdf; export BAR=fdsa; bash -l'"
+#
+# This function does this automatically for select environment variables.
 ssh_envhack_wrapper() {
-  SSH_CLIENT_OSTYPE=${SSH_CLIENT_OSTYPE:-$OSTYPE} \
-  SSH_CLIENT_COLORTERM=${SSH_CLIENT_COLORTERM:-$COLORTERM} \
-  SSH_CLIENT_TERM_PROGRAM=${SSH_CLIENT_TERM_PROGRAM:-$TERM_PROGRAM} \
-  TERM=$(encode_env_into_TERM) ssh "$@"
+  # Must duplicate ssh's arg parsing logic to keep ssh's expected behavior.
+  local flags=() dst='' cmds=()
+  while [ $# -gt 0 ]; do
+    if [ ${#cmds} -gt 0 ]; then
+      cmds+=( "$1" ); shift; continue
+    fi
+    case "$1" in
+      # NOTE: ssh does NOT treat "--" specially.
+      -Q) command ssh -Q "$2"; return $?;;
+      -*)
+        for (( i=1; i<${#1}; i++ )); do
+          flags+=( "-${1:$i:1}" )
+          [[ "${1:$i:1}" =~ [BbcDEeFIiJLlmOoPpRSWw] ]] || continue
+          shift; flags+=( "$1" ); break
+        done
+        ;;
+      *) [ -z "$dst" ] && dst="$1" || cmds+=( "$1" );;
+    esac
+    shift
+  done
+
+  # Run ssh normally if dst was unspecified or commands were given.
+  if [ -z "$dst" ]; then
+    [ ${#cmds} -eq 0 ] || echo '!!! BUG !!!' >&2
+    command ssh "${flags[@]}"
+    return $?
+  elif [ ${#cmds} -gt 0 ]; then
+    command ssh "${flags[@]}" "$dst" "${cmds[@]}"
+    return $?
+  fi
+
+  # Build command string to pass select env vars to remote host.
+  local exports='true'
+  for var in COLORTERM TERM_PROGRAM MY_SSH_TEST_VAR; do
+    local val="${!var}"
+    exports="$exports; export $var='${val//\'/\'\"\'\"\'}'" # escape quotes
+  done
+  exports="${exports//\'/\'\"\'\"\'}" # double-escape for ssh
+  [ -t 0 ] && [ -t 1 ] && [ -t 2 ] && flags+=( '-t' )
+  command ssh "${flags[@]}" "$dst" "/bin/sh -c '$exports; exec bash -l'"
 }
 alias ssh='ssh_envhack_wrapper'
 
