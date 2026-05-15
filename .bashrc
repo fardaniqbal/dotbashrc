@@ -308,10 +308,6 @@ if ! shopt -oq posix; then
 fi
 #[ -f /etc/bash_completion ] && . /etc/bash_completion
 
-# Custom lazy-loader for sdkman.  Gives the same UX that sdkman's installer
-# appends to your .bashrc, but without slowing down shell startup time.
 # THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-_sdk_lazy_cmp() { complete -r sdk; COMPREPLY=(); eval sdk >/dev/null 2>&1; }
-complete -o default -F _sdk_lazy_cmp sdk
-alias sdk='unalias sdk; export SDKMAN_DIR="$HOME/.sdkman" &&
- [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh" && sdk'
+export SDKMAN_DIR="${SDKMAN_DIR:-"$HOME/.sdkman"}"
+[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
