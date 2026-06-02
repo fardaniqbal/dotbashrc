@@ -268,6 +268,7 @@ export PATH
 
 # Define your own aliases here.
 [ -f "$bashrc_dir/.bash_aliases" ] && . "$bashrc_dir/.bash_aliases"
+[ -f "$bashrc_dir/.bash_fzfutil" ] && . "$bashrc_dir/.bash_fzfutil"
 
 # Set up EDITOR and related variables.
 export EDITOR="$(expand_alias vim)"

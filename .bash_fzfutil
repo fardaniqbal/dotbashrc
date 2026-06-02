@@ -1,0 +1,37 @@
+# Utilities using fzf.
+if (unalias fzf; unset -f fzf; ! command -v fzf) >/dev/null 2>&1; then
+  return
+fi
+
+bashrc_fzf_() {
+  fzf --cycle -n1 -d'\|' --info=inline-right \
+    --height=~100% --layout=reverse --border=rounded --border-label-pos=3 \
+    --border-label="$1 (ENTER to confirm, ESC to cancel)"
+}
+
+bashrc_fzf_preview_() {
+  fzf --cycle -n1 -d'\|' --info=inline-right \
+    --height=~100% --layout=reverse --border=rounded --border-label-pos=3 \
+    --border-label="$1 (ENTER to confirm, ESC to cancel)" --preview="$2"
+}
+
+# Git - select branch
+bashrc_fzf_ggb_() {
+  (set -e
+  ggb_curbranch="$(git rev-parse --abbrev-ref HEAD)"
+  ggb_selection="$(git branch -a --sort=-committerdate |
+  bashrc_fzf_preview_ "Select git branch" \
+      "git log --color=always -p $ggb_curbranch...{-1}")"
+  printf '%s\n' "$ggb_selection" | cut -c 3- | sed 's/ ->.*$//' | xargs git checkout --)
+}
+
+alias ggb='bashrc_fzf_ggb_'
+
+# Git - completion for branches
+
+# TODO: needs _a lot_ more work!
+bashrc_fzf_ggb_complete_() {
+  local branches="$(git --no-pager branch -a --sort=-committerdate)"
+  FZF_COMPLETION_TRIGGER='' _fzf_complete +m -- <<<"$branches"
+}
+#complete -F bashrc_fzf_ggb_complete_ git
