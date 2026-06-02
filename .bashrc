@@ -202,11 +202,15 @@ mesg n 2>/dev/null    # people have way too much fun with this...
 
 # Enable color support for ls.
 if [ "$TERM" != "dumb" ] && (type dircolors >/dev/null 2>&1); then
-  if [ -f "$HOME/.dircolors" ]; then
-    eval "$(dircolors -b "$HOME/.dircolors")"
-  else
-    TERM='xterm' eval "`dircolors -b`" # use xterm colors if no custom db
+  if ! [ -f "$HOME/.dircolors" ]; then
+    # If no custom db, generate one based on default xterm dircolors.
+    _dircolors=$(TERM=xterm-256color dircolors -p)
+    _dircolors=${_dircolors//4[0-7];/40;} # remove hard-to-read bg colors
+    _dircolors=${_dircolors//;4[0-7]/;40}
+    printf '%s\n' "$_dircolors" > "$HOME/.dircolors"
+    unset -v _dircolors
   fi
+  eval "$(dircolors -b "$HOME/.dircolors")"
 fi
 
 # Set PS1 to "[user@host: directory]$ ", but with color escape codes based
