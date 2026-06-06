@@ -26,6 +26,14 @@ vtnorb='\033[01m';    vtblkb='\033[01;30m'; vtredb='\033[01;31m'
 vtgrnb='\033[01;32m'; vtyelb='\033[01;33m'; vtblub='\033[01;34m'
 vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 
+# Define _bashrc_escape() to shell-escape single quotes.  Note that older
+# Bash versions (Mac OS) don't support ${var//foo/bar} syntax, so use sed.
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+  _bashrc_escape() { sed 's|'\''|'\'\"\'\"\''|g' <<< "$1"; }
+else
+  _bashrc_escape() { printf '%s' "${1//\'/\'\"\'\"\'}"; }
+fi
+
 #### ENV INIT: set env vars, options, etc that affect everying else ####
 
 # Try to create real symlinks if we're on MSYS/MinGW/etc.  NOTE: to create
@@ -86,9 +94,9 @@ ssh_envhack_wrapper() {
   local exports='true'
   for var in COLORTERM TERM_PROGRAM MY_SSH_TEST_VAR; do
     local val="${!var}"
-    exports="$exports; export $var='${val//\'/\'\"\'\"\'}'" # escape quotes
+    exports="$exports; export $var='$(_bashrc_escape "$val")'" # escape quotes
   done
-  exports="${exports//\'/\'\"\'\"\'}" # double-escape for ssh
+  exports="$(_bashrc_escape "$exports")" # double-escape for ssh
   [ -t 0 ] && [ -t 1 ] && [ -t 2 ] && flags+=( '-t' )
   command ssh "${flags[@]}" "$dst" "/bin/sh -c '$exports; exec bash -l'"
 }
