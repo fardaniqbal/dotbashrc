@@ -26,6 +26,10 @@ vtnorb='\033[01m';    vtblkb='\033[01;30m'; vtredb='\033[01;31m'
 vtgrnb='\033[01;32m'; vtyelb='\033[01;33m'; vtblub='\033[01;34m'
 vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 
+# Assume we have nerd font if on local machine.  If ssh'd into a remote
+# host, let our ssh wrapper hack pass nerd font env vars through.
+[ -z "$SSY_TTY" ] && export NERDFONTS=true NERD_FONT=1
+
 #### ENV INIT: set env vars, options, etc that affect everying else ####
 
 # Try to create real symlinks if we're on MSYS/MinGW/etc.  NOTE: to create
@@ -84,7 +88,7 @@ ssh_envhack_wrapper() {
 
   # Build export command to pass select env vars to remote host.
   local var= exports='true'
-  for var in COLORTERM TERM_PROGRAM MY_SSH_TEST_VAR; do
+  for var in COLORTERM TERM_PROGRAM MY_SSH_TEST_VAR NERDFONTS NERD_FONT; do
     local val="${!var}"
     # Escape quotes.  Note that older bash versions (Mac OS) don't support
     # ${var//foo/bar} syntax, so use sed.
