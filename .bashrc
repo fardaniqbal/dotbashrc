@@ -26,14 +26,6 @@ vtnorb='\033[01m';    vtblkb='\033[01;30m'; vtredb='\033[01;31m'
 vtgrnb='\033[01;32m'; vtyelb='\033[01;33m'; vtblub='\033[01;34m'
 vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 
-# Define _bashrc_escape() to shell-escape single quotes.  Note that older
-# Bash versions (Mac OS) don't support ${var//foo/bar} syntax, so use sed.
-if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
-  _bashrc_escape() { sed 's|'\''|'\'\"\'\"\''|g' <<< "$1"; }
-else
-  _bashrc_escape() { printf '%s' "${1//\'/\'\"\'\"\'}"; }
-fi
-
 #### ENV INIT: set env vars, options, etc that affect everying else ####
 
 # Try to create real symlinks if we're on MSYS/MinGW/etc.  NOTE: to create
@@ -90,15 +82,50 @@ ssh_envhack_wrapper() {
     return $?
   fi
 
-  # Build command string to pass select env vars to remote host.
-  local exports='true'
+  # Build export command to pass select env vars to remote host.
+  local var= exports='true'
   for var in COLORTERM TERM_PROGRAM MY_SSH_TEST_VAR; do
     local val="${!var}"
-    exports="$exports; export $var='$(_bashrc_escape "$val")'" # escape quotes
+    # Escape quotes.  Note that older bash versions (Mac OS) don't support
+    # ${var//foo/bar} syntax, so use sed.
+    val="$(sed 's|'\''|'\'\"\'\"\''|g' <<<  "$val")"
+    exports="$exports; export $var='$val'"
   done
-  exports="$(_bashrc_escape "$exports")" # double-escape for ssh
+
+  # Carry this function itself over to the remote login shell.  Credit to
+  # [backpack](https://github.com/sineemore/backpack/) for inspiration.
+  local self_src="$(declare -f "${FUNCNAME[0]}")"
+  command -v base64 >/dev/null 2>&1 &&
+    local self_src_enc="$(base64 <<< "$self_src" | tr -d $'\n')" ||
+    local self_src_enc="$(openssl base64 -A <<< "$self_src")"
+  local remote_cmd="$(cat <<EOF
+    exec "\$BASH" --rcfile <(
+      cat <<'INTERNAL_EOF'
+      $exports
+      # Source same files that bash --login is documented to source.
+      [ -f /etc/profile ] && . /etc/profile
+      for _rcfile in ~/.bash_profile ~/.bash_login ~/.profile; do
+        if [ -f "\$_rcfile" ]; then . "\$_rcfile"; break; fi
+      done
+      unset -v _rcfile
+      command -v base64 >/dev/null 2>&1 &&
+        _decode() { sed 's|.\{64\}|&\n|g' | base64 -d; } ||
+        _decode() { sed 's|.\{64\}|&\n|g' | openssl base64 -d -A; }
+      eval "\$(printf %s "$self_src_enc" | _decode)"
+      unset -f _decode
+      $exports
+      alias ssh="${FUNCNAME[0]}"
+INTERNAL_EOF
+    ) -i ||
+    # exec failed; try fallbacks...
+    [ -x "\$SHELL" ] && exec "\$SHELL" -l
+    exec /bin/sh -i
+EOF
+  )"
+  # Escape again for ssh.  Avoid ${foo//bar/baz} syntax for compatibility.
+  remote_cmd="$(sed 's|'\''|'\'\"\'\"\''|g' <<<  "$remote_cmd")"
   [ -t 0 ] && [ -t 1 ] && [ -t 2 ] && flags+=( '-t' )
-  command ssh "${flags[@]}" "$dst" "/bin/sh -c '$exports; exec bash -l'"
+  command ssh "${flags[@]}" "$dst" "\"\`which bash\`\" -c '$remote_cmd'"
 }
 alias ssh='ssh_envhack_wrapper'
 
