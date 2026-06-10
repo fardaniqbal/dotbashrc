@@ -7,7 +7,7 @@ alias dir='ll'
 ls_opts=''
 
 # Make ls output colored.
-if ls --color=auto ~/.bashrc > /dev/null 2>&1; then
+if ls --color=auto /dev/null > /dev/null 2>&1; then
   # On Mac OS Monterey and later, ls accepts --color (in addition to -G),
   # but --color=auto doesn't take effect unless COLORTERM is non-empty.
   if [[ "$TERM" =~ (truecolor|24bit) ]]; then
@@ -54,7 +54,16 @@ alias vi='vim'
 alias octave='octave -q'  # inhibit octave startup message
 alias mvndep='mvn dependency:tree -Dverbose=true'
 alias tree='tree -C'
-alias diff='diff --color=auto'
+
+diff() {
+  unset -f diff
+  if diff --color=auto /dev/null /dev/null >/dev/null 2>&1; then
+    alias diff='diff --color=auto'
+    diff --color=auto "$@"
+  else
+    diff "$@"
+  fi
+}
 
 # Either this or spam newlines (see https://askubuntu.com/a/473770).
 alias clear="clear && printf '\e[3J'"
@@ -62,7 +71,8 @@ alias cls='clear'
 
 # If emacs has been set up to use a GUI window, make an alias that forces
 # it to run inside the terminal.
-if (emacs --help | grep -E '[[:space:]]-nw[,[:space:]]') > /dev/null 2>&1; then
+if (command -v emacs &&
+    emacs --help | grep -E $'[ \t]-nw[, \t]') > /dev/null 2>&1; then
   alias emacs='emacs -nw'
 fi
 alias emacsclient='emacsclient -a "" -t'
