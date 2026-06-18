@@ -117,10 +117,13 @@ ssh_envhack_wrapper() {
         if [ -f "\$_rcfile" ]; then . "\$_rcfile"; break; fi
       done
       unset -v _rcfile
+
+      # XXX: to replace characters with a newline in POSIX/Solaris/BSD sed,
+      # specify the replacement as a backslash followed by literal newline.
       command -v base64 >/dev/null 2>&1 &&
-        _decode() { sed 's|.\{64\}|&\n|g' | base64 -d; } ||
-        _decode() { sed 's|.\{64\}|&\n|g' | openssl base64 -d -A; }
-      eval "\$(printf %s "$self_src_enc" | _decode)"
+        _decode() { sed 's|.\\{64\\}|&\\'\$'\\n|g' | base64 -d; } ||
+        _decode() { sed 's|.\\{64\\}|&\\'\$'\\n|g' | openssl base64 -d; }
+      eval "\$(_decode <<< "$self_src_enc")"
       unset -f _decode
       $exports
       alias ssh="${FUNCNAME[0]}"
