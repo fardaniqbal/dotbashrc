@@ -68,7 +68,12 @@ ssh_envhack_wrapper() {
         for (( i=1; i<${#1}; i++ )); do
           flags+=( "-${1:$i:1}" )
           [[ "${1:$i:1}" =~ [BbcDEeFIiJLlmOoPpRSWw] ]] || continue
-          shift; flags+=( "$1" ); break
+          if [ $((i + 1)) -lt "${#1}" ]; then
+            flags+=( "${1:$((i + 1))}" )  # e.g. -oARG
+          elif [ $# -gt 1 ]; then
+            shift; flags+=( "$1" )        # e.g. -o ARG
+          fi
+          break
         done
         ;;
       *) [ -z "$dst" ] && dst="$1" || cmds+=( "$1" );;
