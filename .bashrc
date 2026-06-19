@@ -63,11 +63,10 @@ ssh_envhack_wrapper() {
     fi
     case "$1" in
       # NOTE: ssh does NOT treat "--" specially.
-      -Q) command ssh -Q "$2"; return $?;;
       -*)
         for (( i=1; i<${#1}; i++ )); do
           flags+=( "-${1:$i:1}" )
-          [[ "${1:$i:1}" =~ [BbcDEeFIiJLlmOoPpRSWw] ]] || continue
+          [[ "${1:$i:1}" =~ [BbcDEeFIiJLlmOoPpQRSWw] ]] || continue
           if [ $((i + 1)) -lt "${#1}" ]; then
             flags+=( "${1:$((i + 1))}" )  # e.g. -oARG
           elif [ $# -gt 1 ]; then
@@ -92,7 +91,7 @@ ssh_envhack_wrapper() {
   fi
 
   # Build export command to pass select env vars to remote host.
-  local var= exports='true'
+  local var='' exports='true'
   for var in COLORTERM TERM_PROGRAM MY_SSH_TEST_VAR NERDFONTS NERD_FONT; do
     local val="${!var}"
     # Escape quotes.  Note that older bash versions (Mac OS) don't support
