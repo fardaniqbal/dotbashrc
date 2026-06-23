@@ -65,6 +65,53 @@ diff() {
   fi
 }
 
+# git-graph annoyingly doesn't switch to alt-screen...
+if (unalias git-graph; unset -f git-graph; command -v git-graph) >/dev/null 2>&1; then
+  git-graph() {
+    local myargs=( --style round "$@" )
+    local i='' arg='' altscrn=true skipnext=false
+    # Determine if we should switch to alt screen based on args.
+    for arg in "$@"; do
+      if $skipnext; then skipnext=false; continue; fi
+      skipnext=false
+      case "$arg" in
+        --reverse|--local|--svg|--debug|--sparse|--no-color|--skip-repo-owner-validation)
+          ;;
+        --path=*|--max-count=*|--model=*|--color=*|--style=*|--wrap=*|--format=*)
+          ;;
+        --path|--max-count|--model|--color|--style|--wrap|--format)
+          skipnext=true;;
+        --no-pager)
+          altscrn=false;;
+        -*)
+          for (( i=1; i<${#1}; i++ )); do
+            [[ "${1:$i:1}" =~ [rldS] ]] && continue
+            if ! [[ "${1:$i:1}" =~ [pnmswf] ]]; then
+              altscrn=false   # unrecognized option
+            elif [ $((i + 1)) -lt "${#1}" ]; then
+              :               # e.g. -oARG
+            elif [ $# -gt 1 ]; then
+              skipnext=true   # e.g. -o ARG
+            else
+              altscrn=false   # missing opt arg
+            fi
+            break
+          done
+          ;;
+        *) altscrn=false;;
+      esac
+    done
+    [ -t 1 ] || altscrn=false
+    if ! $altscrn; then command git-graph "${myargs[@]}"; return $?; fi
+    printf '\e[?1049h'  # enter alternate screen
+    command git-graph "${myargs[@]}"
+    local status=$?
+    printf '\e[?1049l'  # leave alternate screen
+    [ $status -eq 0 ] && return 0
+    command git-graph "${myargs[@]}"  # re-run to see error message
+  }
+fi
+
 # Either this or spam newlines (see https://askubuntu.com/a/473770).
 alias clear="clear && printf '\e[3J'"
 alias cls='clear'
