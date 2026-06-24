@@ -65,50 +65,64 @@ diff() {
   fi
 }
 
-# git-graph annoyingly doesn't switch to alt-screen...
+# git-graph annoyingly doesn't switch to alt-screen or use $PAGER...
 if (unalias git-graph; unset -f git-graph; command -v git-graph) >/dev/null 2>&1; then
   git-graph() {
-    local myargs=( --style round "$@" )
-    local i='' arg='' altscrn=true skipnext=false
+    local mystyle=(--style=round)
+    local mycolor=(--color=auto)
+    local idx='' i='' altscrn=true skipnext=false
+
     # Determine if we should switch to alt screen based on args.
-    for arg in "$@"; do
+    for (( idx=1; idx<=$#; idx++ )); do
       if $skipnext; then skipnext=false; continue; fi
       skipnext=false
-      case "$arg" in
-        --reverse|--local|--svg|--debug|--sparse|--no-color|--skip-repo-owner-validation)
-          ;;
-        --path=*|--max-count=*|--model=*|--color=*|--style=*|--wrap=*|--format=*)
-          ;;
+      local arg="${@:$idx:1}"
+      if [[ "$arg" != '-'*  ]]; then      # positional arg
+        alscrn=true; continue
+      elif [[ "$arg" != '--'* ]]; then    # short options
+        for (( i=1; i<${#arg}; i++ )); do
+          [[   "${arg:$i:1}" =~ [rldS]     ]] && continue            # flag
+          { [[ ! "${arg:$i:1}" =~ [pnmswf] ]] && altscrn=false; } || # bad opt
+          { [ $((i+1)) -lt ${#arg} ]          && :;             } || # eg -oARG
+          { [ $((idx+1)) -le $# ]             && skipnext=true; } || # eg -o ARG
+          altscrn=false                                              # no ARG
+          [ "${arg:$i:1}" = "s" ] && mystyle=()
+          break
+        done
+        continue
+      fi
+      case "$arg" in  # --long option
+        --path=*|--max-count=*|--model=*|--color=*|--style=*|--wrap=*|--format=*|\
         --path|--max-count|--model|--color|--style|--wrap|--format)
-          skipnext=true;;
-        --no-pager)
-          altscrn=false;;
-        -*)
-          for (( i=1; i<${#1}; i++ )); do
-            [[ "${1:$i:1}" =~ [rldS] ]] && continue
-            if ! [[ "${1:$i:1}" =~ [pnmswf] ]]; then
-              altscrn=false   # unrecognized option
-            elif [ $((i + 1)) -lt "${#1}" ]; then
-              :               # e.g. -oARG
-            elif [ $# -gt 1 ]; then
-              skipnext=true   # e.g. -o ARG
-            else
-              altscrn=false   # missing opt arg
-            fi
-            break
-          done
+          { [[ "$arg" == *'='* ]] && :; }             || # --longopt=ARG
+          { [ $((idx+1)) -le $# ] && skipnext=true; } || # --longopt ARG
+          altscrn=false                                  # missing opt arg
+          [[ "$arg" == '--style'* ]] && mystyle=()
+          [[ "$arg" == '--color'* ]] && mycolor=()
           ;;
+        --no-color) mycolor=();;
+        --no-pager) altscrn=false;;
+        --reverse|--local|--svg|--debug|--sparse|--skip-repo-owner-validation);;
         *) altscrn=false;;
       esac
     done
     [ -t 1 ] || altscrn=false
+    $altscrn && [ ${#mycolor[@]} -gt 0 ] && mycolor=(--color=always)
+    local myargs=("${mystyle[@]}" "${mycolor[@]}" "$@")
     if ! $altscrn; then command git-graph "${myargs[@]}"; return $?; fi
-    printf '\e[?1049h'  # enter alternate screen
-    command git-graph "${myargs[@]}"
-    local status=$?
-    printf '\e[?1049l'  # leave alternate screen
-    [ $status -eq 0 ] && return 0
-    command git-graph "${myargs[@]}"  # re-run to see error message
+    local output= status=
+
+    if true; then         # use external pager
+      output="$(command git-graph "${myargs[@]}")"; status=$?
+      [ $status -eq 0 ] && ${PAGER:-less -Ri} <<< "$output"
+    else                  # use git-graph's built-in pager
+      printf '\e[?1049h'  # enter alternate screen
+      command git-graph "${myargs[@]}"; status=$?
+      printf '\e[?1049l'  # leave alternate screen
+      [ $status -eq 0 ] && return 0
+      command git-graph "${myargs[@]}"  # re-run to see error message
+    fi
+    return $status
   }
 fi
 
