@@ -26,9 +26,15 @@ vtnorb='\033[01m';    vtblkb='\033[01;30m'; vtredb='\033[01;31m'
 vtgrnb='\033[01;32m'; vtyelb='\033[01;33m'; vtblub='\033[01;34m'
 vtprpb='\033[01;35m'; vtcyab='\033[01;36m'; vtwhtb='\033[01;37m'
 
-# Assume we have nerd font if on local machine.  If ssh'd into a remote
-# host, let our ssh wrapper hack pass nerd font env vars through.
-[ -z "$SSY_TTY" ] && export NERDFONTS=true NERD_FONT=1
+# Assume we have nerd font and truecolor terminal if on local machine.  If
+# ssh'd into a remote host, pass these env vars through our ssh wrapper.
+if [ -z "$SSH_TTY" ]; then
+  export NERDFONTS=true NERD_FONT=1 COLORTERM=truecolor
+elif [[ "$TERM" =~ (truecolor|24bit) ]]; then
+  export COLORTERM=truecolor
+else
+  export COLORTERM=${COLORTERM:-${SSH_CLIENT_COLORTERM:-yes}}
+fi
 
 #### ENV INIT: set env vars, options, etc that affect everying else ####
 
