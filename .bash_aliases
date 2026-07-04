@@ -121,8 +121,12 @@ if (unalias git-graph; unset -f git-graph; command -v git-graph) >/dev/null 2>&1
   }
 fi
 
-# Either this or spam newlines (see https://askubuntu.com/a/473770).
-alias clear="clear && printf '\e[3J'"
+# On many systems the default 'clear' command doesn't clear the scrollback,
+# so instead explicitly instruct the terminal to do exactly what we want:
+#     \e[H  - move cursor to home position (0,0)
+#     \e[2J - erase entire screen
+#     \e[3J - erase scrollback - default 'clear' often misses this part
+alias clear="printf '\e[H\e[2J\e[3J'"
 alias cls='clear'
 
 # If emacs has been set up to use a GUI window, make an alias that forces
