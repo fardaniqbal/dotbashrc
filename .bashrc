@@ -98,7 +98,7 @@ ssh_envhack_wrapper() {
 
   # Build export command to pass select env vars to remote host.
   local var='' exports='true'
-  for var in COLORTERM TERM_PROGRAM MY_SSH_TEST_VAR NERDFONTS NERD_FONT; do
+  for var in COLORTERM TERM_PROGRAM MY_SSH_TEST_VAR NERDFONTS NERD_FONT TMUX; do
     local val="${!var}"
     # Escape quotes.  Note that older bash versions (Mac OS) don't support
     # ${var//foo/bar} syntax, so use sed.
