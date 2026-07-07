@@ -38,6 +38,8 @@ fi
 
 #### ENV INIT: set env vars, options, etc that affect everying else ####
 
+[ -n "$SSH_TTY" ] && export NVIM_NOTTYFAST=1  # see :help ttyfast in neovim
+
 # Try to create real symlinks if we're on MSYS/MinGW/etc.  NOTE: to create
 # real symlinks, we must either be admin, or the developer-mode setting to
 # allow non-admins to create symlinks must be enabled.  NOTE 2: we detect
