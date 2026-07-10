@@ -259,12 +259,12 @@ if [ "$TERM" != "dumb" ] && (type dircolors >/dev/null 2>&1); then
   if ! [ -f "$HOME/.dircolors" ]; then
     # If no custom db, generate one based on default xterm dircolors.
     (_dircolors=$(TERM=xterm-256color dircolors -p)
+    _dircolors=${_dircolors//;44/;46}
+    _dircolors=${_dircolors//44;/46}
     for i in 1 2 3 5 6 7; do  # replace hard-to-read fg-on-bg colors
       _dircolors=${_dircolors//4$i;[39][0-7]/10$i;30}
       _dircolors=${_dircolors//[39][0-7];4$i/30;10$i}
     done
-    _dircolors=${_dircolors//[39][0-7];44/37;44}
-    _dircolors=${_dircolors//44;[39][0-7]/44;37}
     printf '%s\n' "$_dircolors" > "$HOME/.dircolors")
   fi
   eval "$(dircolors -b "$HOME/.dircolors")"
