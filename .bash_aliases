@@ -73,7 +73,7 @@ if (unalias git-graph; unset -f git-graph; command -v git-graph) >/dev/null 2>&1
       skipnext=false
       local arg="${@:$idx:1}"
       if [[ "$arg" != '-'*  ]]; then      # positional arg
-        alscrn=true; continue
+        altscrn=true; continue
       elif [[ "$arg" != '--'* ]]; then    # short options
         for (( i=1; i<${#arg}; i++ )); do
           [[   "${arg:$i:1}" =~ [rldS]     ]] && continue            # flag
