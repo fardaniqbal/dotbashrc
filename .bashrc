@@ -353,6 +353,19 @@ export GROFF_NO_SGR=1   # for compatibility with some terminal emulators
 # Host-specific settings.
 [ -f ~/.bashrc.local ] && . ~/.bashrc.local
 
+# Auto-start tmux if running over SSH and not already inside tmux.
+if [ -z "$SSH_TTY" ] || [ -n "$TMUX" ]; then
+  : # running locally or already inside tmux
+elif (unalias tmux; unset -f tmux; command -v tmux) >/dev/null 2>&1; then
+  command tmux list-sessions >/dev/null 2>&1 &&
+  command tmux a || command tmux
+  _bashrc_tmux_status=$?
+  printf '\e]111\a\e]104\a' # reset terminal palette to default
+  [ $_bashrc_tmux_status -eq 0 ] && exit 0
+  printf 'error: tmux failed with status %d\n' "$_bashrc_tmux_status" >&2
+  unset -v _bashrc_tmux_status
+fi
+
 # Enable programmable completion features (you don't need to enable
 # this if it's already enabled in /etc/bash.bashrc, and /etc/profile
 # sources /etc/bash.bashrc).
